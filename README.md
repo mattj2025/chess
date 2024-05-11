@@ -1,1 +1,1 @@
-A simple chess game I've been creating
+Chess with several different variants and Local Multiplayer
