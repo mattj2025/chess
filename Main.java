@@ -26,6 +26,9 @@ public class Main {
     public static Host host = new Host();
     public static Client client = new Client();
     public static boolean sendBoard = false;
+    public static Component joinB;
+    public static Component hostB;
+    public static Component disconnectB;
 
     public static void main(String[] args) throws IOException {
         Board chess = new Board();
@@ -109,11 +112,19 @@ public class Main {
         hostButton.setPreferredSize(new Dimension(100,40));
         hostButton.setBackground(Color.white);
         hostButton.addActionListener(host);
+        hostB = hostButton;
 
         JButton joinButton = new JButton("Join");
         joinButton.setPreferredSize(new Dimension(100,40));
         joinButton.setBackground(Color.white);
         joinButton.addActionListener(client);
+        joinB = joinButton;
+
+        JButton disconnectButton = new JButton("Disconnect");
+        disconnectButton.setPreferredSize(new Dimension(100,40));
+        disconnectButton.setBackground(Color.white);
+        disconnectButton.addActionListener(new Disconnect());
+        disconnectB = disconnectButton;
 
         JButton resetButton = new JButton("Reset");
         resetButton.setPreferredSize(new Dimension(100,40));
@@ -181,6 +192,23 @@ public class Main {
             }
             jFrame.dispose();
         } 
+    }
+
+    private static class Disconnect implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            if (multiplayer)
+                try {
+                    if (isHost)
+                        host.disconnect();
+                    else
+                        client.disconnect();
+                    System.out.println("Disconnected");
+                } catch(IOException e1) {
+                    e1.printStackTrace();
+                }
+        }
     }
 
     private static class ButtonClickListener implements ActionListener 
