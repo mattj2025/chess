@@ -42,6 +42,9 @@ public class Main {
         jFrame.setSize(700, 800);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        JLabel title = new JLabel("Chess");
+        title.setFont(new Font("Arial", Font.BOLD, 38));
+
         JCheckBox duckBox = new JCheckBox("Duck");
         duckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
@@ -151,6 +154,7 @@ public class Main {
                 buttons[x][y] = button;
             }
     
+        jFrame.add(title);
         jFrame.add(duckBox);
         jFrame.add(atomicBox);
         jFrame.add(torpedoBox);
