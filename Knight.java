@@ -4,7 +4,7 @@ public class Knight extends Piece
 {
   public Knight(int x, int y, boolean white)
   {
-    super(x,y,white,"k","images\\knight");
+    super(x,y,white,"N","images\\knight");
   }
 
   public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)

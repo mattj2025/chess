@@ -61,7 +61,6 @@ public class Board implements Serializable
             {
                 index = (int) (Math.random() * (piecesLeft.size() - 1));
                 String name = piecesLeft.remove(index);
-                System.out.println(index + name);
 
                 if (name.equals("Rook"))
                     pieces[i][0] = new Rook(i,0,false);

@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Main {
-    static Main mainInstance = new Main();
+    public static Main mainInstance = new Main();
     private static final int BUTTON_SIZE = 80;
     public static JButton[][] buttons;
     public static JFrame jFrame;
@@ -21,7 +21,7 @@ public class Main {
     public static boolean is960 = false;
     public static boolean blindfold = false;
     public static boolean multiplayer = false;
-    public static boolean isWhite = false; // for multiplayer, is the player white
+    public static boolean isWhite = false;
     public static boolean isHost = false;
     public static Host host = new Host();
     public static Client client = new Client();
@@ -30,6 +30,7 @@ public class Main {
     public static Component hostB;
     public static Component disconnectB;
     public static Component resetB;
+    public static Component pastMoves;
 
     public static void main(String[] args) throws IOException {
         Board chess = new Board();
@@ -46,7 +47,9 @@ public class Main {
         JLabel title = new JLabel("Chess");
         title.setFont(new Font("Arial", Font.BOLD, 38));
 
+
         JCheckBox duckBox = new JCheckBox("Duck");
+        duckBox.setSelected(duck);
         duckBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED)
@@ -57,6 +60,7 @@ public class Main {
         });
 
         JCheckBox atomicBox = new JCheckBox("Atomic");
+        atomicBox.setSelected(atomic);
         atomicBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED)
@@ -67,6 +71,7 @@ public class Main {
         });
 
         JCheckBox torpedoBox = new JCheckBox("Torpedo");
+        torpedoBox.setSelected(torpedo);
         torpedoBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED)
@@ -77,6 +82,7 @@ public class Main {
         });
 
         JCheckBox sidewaysBox = new JCheckBox("Sideways");
+        sidewaysBox.setSelected(sideways);
         sidewaysBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED)
@@ -87,6 +93,7 @@ public class Main {
         });
 
         JCheckBox is960Box = new JCheckBox("960");
+        is960Box.setSelected(is960);
         is960Box.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED)
@@ -97,6 +104,7 @@ public class Main {
         });
 
         JCheckBox blindfoldBox = new JCheckBox("Blindfold");
+        blindfoldBox.setSelected(blindfold);
         blindfoldBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED)
@@ -108,9 +116,9 @@ public class Main {
             }
         });
 
-        SpinnerModel spinnerModel = new SpinnerNumberModel(49152, 49152, 65535, 1);
+        /*SpinnerModel spinnerModel = new SpinnerNumberModel(49152, 49152, 65535, 1);
         JSpinner port = new JSpinner(spinnerModel);
-        port.setPreferredSize(new Dimension(100, 30));
+        port.setPreferredSize(new Dimension(100, 30));*/
 
         JButton hostButton = new JButton("Host");
         hostButton.setPreferredSize(new Dimension(100,40));
@@ -135,8 +143,11 @@ public class Main {
         resetButton.setBackground(Color.white);
         resetButton.addActionListener(new Reset(b, jFrame));
         resetB = resetButton;
-        
-        
+
+        /*JTextArea moves = new JTextArea("");
+        moves.setFont(new Font("Arial", Font.PLAIN, 18));
+        pastMoves = moves;*/
+
         JPanel panel = new JPanel(new GridLayout(8, 8));
         buttons = new JButton[8][8];
 
@@ -165,9 +176,10 @@ public class Main {
         jFrame.add(blindfoldBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
-        //jFrame.add(port);
+        //jFrame.add(port);     // not needed currently
         jFrame.add(hostButton);
         jFrame.add(joinButton);
+        //jFrame.add(moves);    // ugly
         jFrame.setVisible(true);
     }
 
@@ -250,7 +262,6 @@ public class Main {
                     if (!blindfold)
                         buttons[row][col].setIcon(chess.getPiece(row,col).getIcon());
                     moveDuck = false;
-
                     sendBoard = true;
                 }
                 else
@@ -260,10 +271,13 @@ public class Main {
             {
                 if(chess.getPiece(x,y).move(row,col,chess) && (!multiplayer || whiteTurn == isWhite))
                 {
+                    System.out.println(chess.getPiece(row,col).getAbbr() + ((char) (row + 97)) + col);
+                    //((JTextArea) pastMoves).setText(((JTextArea) pastMoves).getText() + "\n" + chess.getPiece(row,col).getAbbr() + ((char) (row + 97)) + col);    // super ugly rn
                     buttons[x][y].setIcon(null);
                     if (chess.getPiece(row,col) != null && !blindfold)
                         buttons[row][col].setIcon(chess.getPiece(row,col).getIcon());
                     whiteTurn = !whiteTurn;
+
                     if (duck)
                     {
                         JOptionPane.showMessageDialog(jFrame, "Move the duck");
