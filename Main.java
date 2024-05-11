@@ -29,6 +29,7 @@ public class Main {
     public static Component joinB;
     public static Component hostB;
     public static Component disconnectB;
+    public static Component resetB;
 
     public static void main(String[] args) throws IOException {
         Board chess = new Board();
@@ -133,7 +134,8 @@ public class Main {
         resetButton.setPreferredSize(new Dimension(100,40));
         resetButton.setBackground(Color.white);
         resetButton.addActionListener(new Reset(b, jFrame));
-
+        resetB = resetButton;
+        
         
         JPanel panel = new JPanel(new GridLayout(8, 8));
         buttons = new JButton[8][8];

@@ -1,4 +1,5 @@
 import java.net.*;
+import javax.swing.JButton;
 import java.awt.event.*;
 import java.io.*;
 
@@ -82,5 +83,7 @@ public class Client implements ActionListener
         Main.jFrame.add(Main.joinB);
         Main.jFrame.add(Main.hostB);
         Main.jFrame.remove(Main.disconnectB);
+        Main.multiplayer = false;
+        ((JButton) Main.resetB).doClick();
     }
 }

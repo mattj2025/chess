@@ -1,6 +1,7 @@
 import java.net.*;
 import java.awt.event.*;
 import java.io.*;
+import javax.swing.JButton;
 
 public class Host implements ActionListener 
 {
@@ -36,7 +37,7 @@ public class Host implements ActionListener
                     try {
                         recieveBoard();
                     } catch (ClassNotFoundException | IOException e1) {
-                        System.out.println("Connection failed");
+                        System.out.println("Connection ended");
                         cont = false;
                         try {
                             disconnect();
@@ -77,5 +78,7 @@ public class Host implements ActionListener
         Main.jFrame.add(Main.joinB);
         Main.jFrame.add(Main.hostB);
         Main.jFrame.remove(Main.disconnectB);
+        Main.multiplayer = false;
+        ((JButton) Main.resetB).doClick();
     }
 }
