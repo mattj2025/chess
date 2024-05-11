@@ -10,9 +10,10 @@
 7 R k B Q K B k R
 */
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Board
+public class Board implements Serializable
 {
     private Piece[][] pieces;
     private static final String[] pieceList = {"King","Queen","Rook","Rook","Knight","Knight","Bishop","Bishop"};

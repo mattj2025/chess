@@ -1,15 +1,12 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
 
 public class Main {
+    static Main mainInstance = new Main();
     private static final int BUTTON_SIZE = 80;
     private static JButton[][] buttons;
     public static boolean selected = false;
@@ -100,19 +97,19 @@ public class Main {
             }
         });
 
-        SpinnerModel spinnerModel = new SpinnerNumberModel(0, 10000, 99999, 1);
+        SpinnerModel spinnerModel = new SpinnerNumberModel(49152, 49152, 65535, 1);
         JSpinner port = new JSpinner(spinnerModel);
         port.setPreferredSize(new Dimension(100, 30));
 
         JButton hostButton = new JButton("Host");
         hostButton.setPreferredSize(new Dimension(100,40));
         hostButton.setBackground(Color.white);
-        hostButton.addActionListener(new Host((int) port.getValue()));
+        hostButton.addActionListener(mainInstance.new Host((int) port.getValue(), b));
 
         JButton joinButton = new JButton("Join");
         joinButton.setPreferredSize(new Dimension(100,40));
         joinButton.setBackground(Color.white);
-        joinButton.addActionListener(new Join((int) port.getValue()));
+        joinButton.addActionListener(mainInstance.new Join((int) port.getValue(), b));
 
         JButton resetButton = new JButton("Reset");
         resetButton.setPreferredSize(new Dimension(100,40));
@@ -154,23 +151,25 @@ public class Main {
     }
 
 
-    private static class Host implements ActionListener 
+    private class Host implements ActionListener 
     {
         private int port;
+        private Board b;
 
-        public Host(int port)
+        public Host(int port, Board b)
         {
             this.port = port;
+            this.b = b;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) 
         { 
-            Thread serverThread = new Thread(() -> startServer(port));
+            Thread serverThread = new Thread(() -> startServer(port, b));
             serverThread.start();
         } 
 
-        public static void startServer(int port) 
+        public void startServer(int port, Board b) 
         {
             try {
                 multiplayer = true;
@@ -182,12 +181,15 @@ public class Main {
                 System.out.println("Client connected: " + clientSocket);
                 JOptionPane.showMessageDialog(null, "Connected");
                 
+                new ServerThread(clientSocket, b).start();
+
                 BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
                 String message;
                 while ((message = in.readLine()) != null) {
+
                     System.out.println("Client: " + message);
                     System.out.print("You: ");
                     String reply = reader.readLine();
@@ -202,14 +204,16 @@ public class Main {
         }
     }
 
-    private static class Join implements ActionListener 
+    private class Join implements ActionListener 
     {
         private int port;
         private static final String ip = "192.168.254.17";
+        private static Board board;
 
-        public Join(int port)
+        public Join(int port, Board board)
         {
             this.port = port;
+            Main.Join.board = board;
         }
 
         @Override
@@ -219,14 +223,26 @@ public class Main {
             clientThread.start();
         } 
 
-        public static void startClient(String serverAddress, int port) 
+        public static void startClient(String serverAddress, int port)
         {
             try {
                 multiplayer = true;
                 Socket socket = new Socket(serverAddress, port);
                 System.out.println("Connected to server.");
                 JOptionPane.showMessageDialog(null, "Connected to host");
+
+                InputStream inputStream = socket.getInputStream();
+                ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+                try {
+                    board = (Board) objectInputStream.readObject();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
                 
+                System.out.println("Received board: " + board.toString());
+                JOptionPane.showMessageDialog(jFrame, "Received board: " + board);
+                reloadBoard(Main.buttons, board);
+
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
                 
@@ -242,6 +258,35 @@ public class Main {
                         System.out.println("Server: " + message);
                     }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    class ServerThread extends Thread 
+    {
+        private Socket socket;
+        private Board board;
+        
+        public ServerThread(Socket socket, Board b) {
+            this.socket = socket;
+            this.board = b;
+        }
+        
+        public void run() {
+            try {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutputStream out = new ObjectOutputStream(bos);
+                out.writeObject(board);
+                out.flush();
+                byte[] boardBytes = bos.toByteArray();
+                
+                // Send the serialized Board object to the client
+                OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(boardBytes);
+                
+                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
