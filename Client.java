@@ -35,7 +35,7 @@ public class Client implements ActionListener
                     try {
                         recieveBoard();
                     } catch (ClassNotFoundException | IOException e1) {
-                        System.out.println("Connection failed");
+                        System.out.println("Connection ended");
                         cont = false;
                         try {
                             disconnect();
