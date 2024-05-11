@@ -1,7 +1,9 @@
 import javax.swing.*;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class Piece
+public abstract class Piece implements Serializable
 {
   private int x;
   private int y;

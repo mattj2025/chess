@@ -2,19 +2,18 @@ import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
-import java.net.*;
 import java.util.ArrayList;
 
 public class Main {
     static Main mainInstance = new Main();
     private static final int BUTTON_SIZE = 80;
-    private static JButton[][] buttons;
+    public static JButton[][] buttons;
+    public static JFrame jFrame;
     public static boolean selected = false;
     public static boolean moveDuck = false;
     public static int x = 0;
     public static int y = 0;
     public static boolean whiteTurn = true;
-    private static JFrame jFrame;
     public static boolean duck = false;
     public static boolean atomic = false;
     public static boolean torpedo = false;
@@ -22,17 +21,22 @@ public class Main {
     public static boolean is960 = false;
     public static boolean blindfold = false;
     public static boolean multiplayer = false;
+    public static boolean isWhite = false; // for multiplayer, is the player white
+    public static boolean isHost = false;
+    public static Host host = new Host();
+    public static Client client = new Client();
+    public static boolean sendBoard = false;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Board chess = new Board();
         createAndShowGUI(chess);
         System.out.println(chess);
     }
 
-    private static void createAndShowGUI(Board b) {
+    private static void createAndShowGUI(Board b) throws IOException {
         jFrame = new JFrame("Chess");
         jFrame.setLayout(new FlowLayout());
-        jFrame.setSize(1200, 800);
+        jFrame.setSize(700, 800);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JCheckBox duckBox = new JCheckBox("Duck");
@@ -104,17 +108,17 @@ public class Main {
         JButton hostButton = new JButton("Host");
         hostButton.setPreferredSize(new Dimension(100,40));
         hostButton.setBackground(Color.white);
-        hostButton.addActionListener(mainInstance.new Host((int) port.getValue(), b));
+        hostButton.addActionListener(host);
 
         JButton joinButton = new JButton("Join");
         joinButton.setPreferredSize(new Dimension(100,40));
         joinButton.setBackground(Color.white);
-        joinButton.addActionListener(mainInstance.new Join((int) port.getValue(), b));
+        joinButton.addActionListener(client);
 
         JButton resetButton = new JButton("Reset");
         resetButton.setPreferredSize(new Dimension(100,40));
         resetButton.setBackground(Color.white);
-        resetButton.addActionListener(new Reset(b));
+        resetButton.addActionListener(new Reset(b, jFrame));
 
         
         JPanel panel = new JPanel(new GridLayout(8, 8));
@@ -144,162 +148,21 @@ public class Main {
         jFrame.add(blindfoldBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
-        jFrame.add(port);
+        //jFrame.add(port);
         jFrame.add(hostButton);
         jFrame.add(joinButton);
         jFrame.setVisible(true);
     }
 
-
-    private class Host implements ActionListener 
-    {
-        private int port;
-        private Board b;
-
-        public Host(int port, Board b)
-        {
-            this.port = port;
-            this.b = b;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) 
-        { 
-            Thread serverThread = new Thread(() -> startServer(port, b));
-            serverThread.start();
-        } 
-
-        public void startServer(int port, Board b) 
-        {
-            try {
-                multiplayer = true;
-                ServerSocket serverSocket = new ServerSocket(port);
-                System.out.println("Server is running...");
-                JOptionPane.showMessageDialog(null, "Hosting. Waiting for connection");
-
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket);
-                JOptionPane.showMessageDialog(null, "Connected");
-                
-                new ServerThread(clientSocket, b).start();
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                
-                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                String message;
-                while ((message = in.readLine()) != null) {
-
-                    System.out.println("Client: " + message);
-                    System.out.print("You: ");
-                    String reply = reader.readLine();
-                    out.println(reply);
-                }
-                
-                clientSocket.close();
-                serverSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private class Join implements ActionListener 
-    {
-        private int port;
-        private static final String ip = "192.168.254.17";
-        private static Board board;
-
-        public Join(int port, Board board)
-        {
-            this.port = port;
-            Main.Join.board = board;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) 
-        { 
-            Thread clientThread = new Thread(() -> startClient(ip, port));
-            clientThread.start();
-        } 
-
-        public static void startClient(String serverAddress, int port)
-        {
-            try {
-                multiplayer = true;
-                Socket socket = new Socket(serverAddress, port);
-                System.out.println("Connected to server.");
-                JOptionPane.showMessageDialog(null, "Connected to host");
-
-                InputStream inputStream = socket.getInputStream();
-                ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                try {
-                    board = (Board) objectInputStream.readObject();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                
-                System.out.println("Received board: " + board.toString());
-                JOptionPane.showMessageDialog(jFrame, "Received board: " + board);
-                reloadBoard(Main.buttons, board);
-
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                
-                BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-                String message;
-                while (true) {
-                    System.out.print("You: ");
-                    String input = reader.readLine();
-                    out.println(input);
-                    
-                    message = in.readLine();
-                    if (message != null) {
-                        System.out.println("Server: " + message);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    class ServerThread extends Thread 
-    {
-        private Socket socket;
-        private Board board;
-        
-        public ServerThread(Socket socket, Board b) {
-            this.socket = socket;
-            this.board = b;
-        }
-        
-        public void run() {
-            try {
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                ObjectOutputStream out = new ObjectOutputStream(bos);
-                out.writeObject(board);
-                out.flush();
-                byte[] boardBytes = bos.toByteArray();
-                
-                // Send the serialized Board object to the client
-                OutputStream outputStream = socket.getOutputStream();
-                outputStream.write(boardBytes);
-                
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     private static class Reset implements ActionListener 
     {
         private Board chess;
+        private JFrame jFrame;
 
-        public Reset(Board b)
+        public Reset(Board b, JFrame f)
         {
             chess = b;
+            jFrame = f;
         }
 
         @Override
@@ -311,7 +174,12 @@ public class Main {
                 chess = new Board();
             selected = false;
             whiteTurn = true;
-            createAndShowGUI(chess);
+            try {
+                createAndShowGUI(chess);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            jFrame.dispose();
         } 
     }
 
@@ -348,13 +216,15 @@ public class Main {
                     if (!blindfold)
                         buttons[row][col].setIcon(chess.getPiece(row,col).getIcon());
                     moveDuck = false;
+
+                    sendBoard = true;
                 }
                 else
                     System.out.println("Cannot move");
             }
             else if (selected)
             {
-                if(chess.getPiece(x,y).move(row,col,chess))
+                if(chess.getPiece(x,y).move(row,col,chess) && (!multiplayer || whiteTurn == isWhite))
                 {
                     buttons[x][y].setIcon(null);
                     if (chess.getPiece(row,col) != null && !blindfold)
@@ -376,6 +246,8 @@ public class Main {
                                     buttons[i][j].setIcon(null);
                             }
                     }
+
+                    sendBoard = true;
                 }
                 else
                     System.out.println("Cannot Move");
@@ -411,18 +283,39 @@ public class Main {
                     chess = new Board();
                     selected = false;
                     whiteTurn = true;
-                    createAndShowGUI(chess);
+                    try {
+                        createAndShowGUI(chess);
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+
+                    sendBoard = true;
                 }
-                else
+                else if (!multiplayer || (isWhite == whiteTurn))
                     for (int i = 0; i < possibleMoves.get(0).size(); i++)
                         buttons[possibleMoves.get(0).get(i)][possibleMoves.get(1).get(i)].setBackground(Color.YELLOW);
 
-                
-                clickedButton.setBackground(Color.RED);
+                if (!multiplayer || (isWhite == whiteTurn))
+                    clickedButton.setBackground(Color.RED);
 
                 selected = true;
                 x = row;
                 y = col;
+            }
+
+            if (multiplayer && sendBoard)
+            {
+                try
+                {
+                if (isHost)
+                    host.sendBoard(chess);
+                else
+                    client.sendBoard(chess);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+
+                sendBoard = false;
             }
         }
     }
@@ -448,10 +341,15 @@ public class Main {
     {
         for (int i = 0; i < 8; i++) 
             for (int j = 0; j < 8; j++)
+            {
                 if ((j % 2 == 0 && i % 2 == 0) || (j % 2 == 1 && i % 2 == 1))
                     buttons[i][j].setBackground(Color.white);
                 else
                     buttons[i][j].setBackground(Color.LIGHT_GRAY);
+
+                buttons[i][j].removeActionListener(buttons[i][j].getActionListeners()[0]);
+                buttons[i][j].addActionListener(new ButtonClickListener(i, j, b));
+            }
 
         if (!blindfold)
             for (int i = 0; i < 8; i++)
@@ -466,5 +364,6 @@ public class Main {
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 8; j++)
                     buttons[i][j].setIcon(null);
+
     }
 }
