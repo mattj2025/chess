@@ -42,7 +42,7 @@ public class King extends Piece
     {
       for (int y = getY() - 1; y < getY() + 2; y++)
       {
-        if (x > -1 && x < 8 && y > -1 && y < 8  && b.occupation(x,y) != Main.boolToInt(isWhite()) && !Main.checkContainsCoordinate(check, x, y))
+        if (x > -1 && x < 8 && y > -1 && y < 8  && b.occupation(x,y) != Main.boolToInt(isWhite()) && !Main.checkContainsCoordinate(check, x, y) && b.occupation(x,y) != 3)
         {
           moves.get(0).add(x);
           moves.get(1).add(y);

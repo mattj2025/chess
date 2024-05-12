@@ -27,6 +27,8 @@ public class Main {
     public static boolean multiplayer = false;
     public static boolean isWhite = false;
     public static boolean isHost = false;
+    public static boolean isBad = false;
+    public static boolean isDerby = false;
     public static String piece;
     public static Host host = new Host();
     public static Client client = new Client();
@@ -43,6 +45,7 @@ public class Main {
     public static Color[] movesColors = {Color.YELLOW, Color.YELLOW};
     public static Color[] selectColors = {Color.RED, Color.RED};
     public static Color[] textColors = {Color.DARK_GRAY, Color.LIGHT_GRAY};
+    public static Color[] emptyColors = {Color.BLACK, Color.BLACK};
 
     public static void main(String[] args) throws IOException {
         chess = new Board();
@@ -205,13 +208,34 @@ public class Main {
                     isPre = false;
             }
         });
+        
+        JCheckBox isBadBox = new JCheckBox("Really Bad");
+        isBadBox.setSelected(isBad);
+        isBadBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                    isBad = true;
+                else
+                    isBad = false;
+            }
+        });
+
+        JCheckBox isDerbyBox = new JCheckBox("Cross Derby");
+        isDerbyBox.setSelected(isDerby);
+        isDerbyBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                    isDerby = true;
+                else
+                    isDerby = false;
+            }
+        });
 
         JCheckBox blindfoldBox = new JCheckBox("Blindfold");
         blindfoldBox.setSelected(blindfold);
         blindfoldBox.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                
+                if (e.getStateChange() == ItemEvent.SELECTED)           
                     blindfold = true;
                 else
                     blindfold = false;
@@ -276,6 +300,8 @@ public class Main {
         jFrame.add(blindfoldBox);
         jFrame.add(isCheckersBox);
         jFrame.add(isPreBox);
+        jFrame.add(isBadBox);
+        jFrame.add(isDerbyBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
         jFrame.add(hostButton);
@@ -302,6 +328,10 @@ public class Main {
                 chess = new Board("checkers");
             else if (isPre)
                 chess = new Board("preChess");
+            else if (isBad)
+                chess = new Board("bad");
+            else if (isDerby)
+                chess = new Board("crossDerby");
             else
                 chess = new Board();
 
@@ -539,6 +569,8 @@ public class Main {
                 else
                     buttons[i][j].setBackground(tileB[theme]);
 
+                if (chess.occupation(i,j) == 3)
+                    buttons[i][j].setBackground(emptyColors[theme]);
                 buttons[i][j].removeActionListener(buttons[i][j].getActionListeners()[0]);
                 buttons[i][j].addActionListener(new ButtonClickListener(i, j, chess));
             }
@@ -555,6 +587,7 @@ public class Main {
         else
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 8; j++)
+                    if (chess.occupation(i, j) != 3)
                     buttons[i][j].setIcon(null);
 
     }
