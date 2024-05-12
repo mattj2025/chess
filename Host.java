@@ -1,7 +1,8 @@
 import java.net.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import javax.swing.JButton;
+import javax.swing.*;
 
 public class Host implements ActionListener 
 {
@@ -9,18 +10,28 @@ public class Host implements ActionListener
     private Socket clientSocket;
     private InputStream inputStream;
     private OutputStream outputStream;
+    private static int port = 49152;
+    private JFrame frame;
 
     public void actionPerformed(ActionEvent e)
     {
         try 
         {
-            Main.jFrame.remove(Main.joinB);
-            Main.jFrame.remove(Main.hostB);
-            Main.jFrame.add(Main.disconnectB);
+            port++;
+            JOptionPane.showMessageDialog(Main.jFrame, "Hosted on port: " + port);
             Main.multiplayer = true;
             Main.isHost = true;
             Main.isWhite = true;
-            serverSocket = new ServerSocket(6666);
+
+            // TODO - allow host to cancel joining bc app currently freezes
+            
+            //Thread cancelThread = new Thread(() -> {
+                Timer cancel = new Timer(5000, new CancelListener());
+                cancel.start();
+            //});
+            //cancelThread.start();
+
+            serverSocket = new ServerSocket(port);
             clientSocket = serverSocket.accept();
 
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -29,7 +40,13 @@ public class Host implements ActionListener
             String greeting = in.readLine();
             if ("Connect".equals(greeting)) {
                 out.println("Connected");
+                JOptionPane.showMessageDialog(Main.jFrame, "Connected");
+                Main.jFrame.remove(Main.joinB);
+                Main.jFrame.remove(Main.hostB);
+                Main.jFrame.add(Main.disconnectB);
+                Main.jFrame.repaint();
             }
+
 
             Thread loopThread = new Thread(() -> {
                 boolean cont = true;
@@ -50,7 +67,8 @@ public class Host implements ActionListener
             loopThread.start();
 
         } catch(IOException e1) {
-            e1.printStackTrace();
+            System.out.println("Could not find Client");
+            JOptionPane.showMessageDialog(Main.jFrame, "Could not find client");
         }
     }
 
@@ -75,10 +93,24 @@ public class Host implements ActionListener
         clientSocket.close();
         outputStream.close();
         inputStream.close();
+        JOptionPane.showMessageDialog(Main.jFrame, "Disconnected");
         Main.jFrame.add(Main.joinB);
         Main.jFrame.add(Main.hostB);
         Main.jFrame.remove(Main.disconnectB);
         Main.multiplayer = false;
         ((JButton) Main.resetB).doClick();
+    }
+
+    public class CancelListener implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            System.out.println("Failed");
+            try {
+                disconnect();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
     }
 }

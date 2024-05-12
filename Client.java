@@ -1,5 +1,5 @@
 import java.net.*;
-import javax.swing.JButton;
+import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
 
@@ -10,24 +10,30 @@ public class Client implements ActionListener
     private PrintWriter out;
     private InputStream inputStream;
     private OutputStream outputStream;
+    private int port;
 
     public void actionPerformed(ActionEvent e)
     {
         try 
         {
-            Main.jFrame.remove(Main.joinB);
-            Main.jFrame.remove(Main.hostB);
-            Main.jFrame.add(Main.disconnectB);
+            port = Integer.parseInt(JOptionPane.showInputDialog("Enter the Port Number"));
             Main.multiplayer = true;
             Main.isHost = false;
             Main.isWhite = false;
 
-            clientSocket = new Socket(InetAddress.getLocalHost(), 6666);
+            clientSocket = new Socket(InetAddress.getLocalHost(), port);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             sendMessage("Connect");
             String response = receiveMessage();
             System.out.println("" + response);
+            JOptionPane.showMessageDialog(Main.jFrame, "Connected");
+
+            Main.jFrame.remove(Main.joinB);
+            Main.jFrame.remove(Main.hostB);
+            Main.jFrame.add(Main.disconnectB);
+            Main.jFrame.repaint();
+            
 
             Thread loopThread = new Thread(() -> {
                 boolean cont = true;
@@ -48,7 +54,8 @@ public class Client implements ActionListener
             loopThread.start();
 
         } catch (IOException e1) {
-            e1.printStackTrace();
+            System.out.println("Could not find Host");
+            JOptionPane.showMessageDialog(Main.jFrame, "Could not find Host");
         }
     }
 
