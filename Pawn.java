@@ -1,5 +1,9 @@
 import java.util.ArrayList;
 
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+
 public class Pawn extends Piece
 {
     private boolean firstMove;
@@ -94,7 +98,26 @@ public class Pawn extends Piece
   {
     boolean r = super.move(x,y,b);
     if (y == 0)
-      b.setPiece(x,y,new Rook(x,y,isWhite()));
+    {
+      String[] options = {"Queen", "Knight", "Rook", "Bishop"};
+      int pick = JOptionPane.showOptionDialog(null,
+                                              "Pick a piece",
+                                              "Pick a piece",
+                                              JOptionPane.YES_NO_CANCEL_OPTION,
+                                              JOptionPane.QUESTION_MESSAGE,
+                                              null,
+                                              options,
+                                              options[0]);
+
+      if (pick == 0)
+        b.setPiece(x,y,new Queen(x,y,isWhite()));
+      else if (pick == 1)
+        b.setPiece(x,y,new Knight(x,y,isWhite()));
+      else if (pick == 2)
+        b.setPiece(x,y,new Rook(x,y,isWhite()));
+      else
+        b.setPiece(x,y,new Bishop(x,y,isWhite()));
+    }
     if (firstMove)
         firstMove = !r;
     return r;
