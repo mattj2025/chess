@@ -1,8 +1,5 @@
 import java.util.ArrayList;
-
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
 
 public class Pawn extends Piece
 {
