@@ -20,6 +20,7 @@ public class Main {
     public static boolean torpedo = false;
     public static boolean sideways = false;
     public static boolean is960 = false;
+    public static boolean isCheckers = false;
     public static boolean blindfold = false;
     public static boolean multiplayer = false;
     public static boolean isWhite = false;
@@ -72,6 +73,8 @@ public class Main {
         load.addActionListener(new Load());
         JMenu colorPicker = new JMenu("Choose Color Theme");
         
+        // TODO - add more themes
+
         JMenuItem original = new JMenuItem("Original");
         original.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e)
@@ -178,6 +181,17 @@ public class Main {
             }
         });
 
+        JCheckBox isCheckersBox = new JCheckBox("Checkers");
+        isCheckersBox.setSelected(isCheckers);
+        isCheckersBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                    isCheckers = true;
+                else
+                    isCheckers = false;
+            }
+        });
+
         JCheckBox blindfoldBox = new JCheckBox("Blindfold");
         blindfoldBox.setSelected(blindfold);
         blindfoldBox.addItemListener(new ItemListener() {
@@ -246,6 +260,7 @@ public class Main {
         jFrame.add(sidewaysBox);
         jFrame.add(is960Box);
         jFrame.add(blindfoldBox);
+        jFrame.add(isCheckersBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
         jFrame.add(hostButton);
@@ -268,6 +283,8 @@ public class Main {
         { 
             if (is960)
                 chess = new Board("960");
+            else if (isCheckers)
+                chess = new Board("checkers");
             else
                 chess = new Board();
 
@@ -365,6 +382,12 @@ public class Main {
                             }
                     }
 
+                    if (isCheckers && (Math.abs(row - x) > 1))
+                    {
+                        chess.setPiece((row + x) / 2, (col + y) / 2 , null);
+                        buttons[(row + x) / 2][(col + y) / 2].setIcon(null);
+                    }
+
                     sendBoard = true;
                 }
                 else
@@ -390,6 +413,7 @@ public class Main {
                         else
                             buttons[i][j].setBackground(tileB[theme]);
 
+                // TODO - clean the look of a finished game
                 ArrayList<ArrayList<Integer>> possibleMoves = chess.getPiece(row,col).getPossibleMoves(chess);
                 if (chess.getPiece(row,col) instanceof King && possibleMoves.get(0).size() == 0)
                 {

@@ -11,6 +11,7 @@ public class Pawn extends Piece
     firstMove = true;
     }
 
+    // TODO - add en passant
     public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
     {
     ArrayList<ArrayList<Integer>> moves = new ArrayList<>();

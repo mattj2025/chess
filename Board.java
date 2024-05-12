@@ -101,6 +101,30 @@ public class Board implements Serializable
             for (int i = 0; i < 8; i++)
                 pieces[i][6] = new Pawn(i,6,true);
         }
+        else if (variant.equals("checkers"))
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    if (i % 2 == 1 && j % 2 == 1)
+                        pieces[i][j] = new CheckersPiece(i,j,false);
+                    else if (i % 2 == 0 && j % 2 == 0)
+                        pieces[i][j] = new CheckersPiece(i,j,false);
+                }
+            }
+
+            for (int j = 5; j < 8; j++)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    if (i % 2 == 1 && j % 2 == 1)
+                        pieces[i][j] = new CheckersPiece(i,j,true);
+                    else if (i % 2 == 0 && j % 2 == 0)
+                        pieces[i][j] = new CheckersPiece(i,j,true);
+                }
+            }
+        }
     } 
 
     public boolean isOccupied(int x, int y)

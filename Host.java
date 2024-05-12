@@ -10,7 +10,6 @@ public class Host implements ActionListener
     private InputStream inputStream;
     private OutputStream outputStream;
     private static int port = 49152;
-    private JFrame frame;
 
     public void actionPerformed(ActionEvent e)
     {
