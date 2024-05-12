@@ -21,10 +21,13 @@ public class Main {
     public static boolean sideways = false;
     public static boolean is960 = false;
     public static boolean isCheckers = false;
+    public static boolean isPre = false;
+    public static int placeInt = 0;
     public static boolean blindfold = false;
     public static boolean multiplayer = false;
     public static boolean isWhite = false;
     public static boolean isHost = false;
+    public static String piece;
     public static Host host = new Host();
     public static Client client = new Client();
     public static boolean sendBoard = false;
@@ -192,6 +195,17 @@ public class Main {
             }
         });
 
+        JCheckBox isPreBox = new JCheckBox("Pre-Chess");
+        isPreBox.setSelected(isPre);
+        isPreBox.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED)
+                    isPre = true;
+                else
+                    isPre = false;
+            }
+        });
+
         JCheckBox blindfoldBox = new JCheckBox("Blindfold");
         blindfoldBox.setSelected(blindfold);
         blindfoldBox.addItemListener(new ItemListener() {
@@ -261,6 +275,7 @@ public class Main {
         jFrame.add(is960Box);
         jFrame.add(blindfoldBox);
         jFrame.add(isCheckersBox);
+        jFrame.add(isPreBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
         jFrame.add(hostButton);
@@ -285,17 +300,24 @@ public class Main {
                 chess = new Board("960");
             else if (isCheckers)
                 chess = new Board("checkers");
+            else if (isPre)
+                chess = new Board("preChess");
             else
                 chess = new Board();
 
             selected = false;
             whiteTurn = true;
+            placeInt = 0;
+
             try {
                 createAndShowGUI();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
             f.dispose();
+
+            if (isPre)
+                JOptionPane.showMessageDialog(jFrame, "Placing Rooks");
         } 
     }
 
@@ -333,7 +355,33 @@ public class Main {
         public void actionPerformed(ActionEvent e) 
         {
             System.out.println("Button clicked at row " + row + ", column " + col);
-            if (moveDuck)
+            if (isPre && placeInt < 16 && ((whiteTurn && col == 7) || (!whiteTurn && col == 0)))
+            {
+                if (placeInt < 4)
+                    chess.setPiece(row,col, new Rook(row, col, whiteTurn));
+                else if (placeInt < 8)
+                    chess.setPiece(row,col, new Bishop(row, col, whiteTurn));
+                else if (placeInt < 12)
+                    chess.setPiece(row,col, new Knight(row, col, whiteTurn));
+                else if (placeInt < 14)
+                    chess.setPiece(row,col, new Queen(row, col, whiteTurn));
+                else
+                    chess.setPiece(row,col, new King(row, col, whiteTurn));
+
+                whiteTurn = !whiteTurn;
+                placeInt++;
+
+                reloadBoard(buttons, chess);
+                if (placeInt == 4)
+                    JOptionPane.showMessageDialog(jFrame, "Placing Bishops");
+                if (placeInt == 8)
+                    JOptionPane.showMessageDialog(jFrame, "Placing Knights");
+                if (placeInt == 12)
+                    JOptionPane.showMessageDialog(jFrame, "Placing Queens");
+                if (placeInt == 14)
+                    JOptionPane.showMessageDialog(jFrame, "Placing Kings");
+            }
+            else if (moveDuck)
             {
                 if (chess.getPiece(row,col) == null)
                 {

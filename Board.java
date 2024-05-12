@@ -72,7 +72,6 @@ public class Board implements Serializable
                     pieces[i][0] = new King(i,0,false);
                 else
                     pieces[i][0] = new Queen(i,0,false);
-
             }
             
             Collections.addAll(piecesLeft, pieceList);
@@ -124,6 +123,14 @@ public class Board implements Serializable
                         pieces[i][j] = new CheckersPiece(i,j,true);
                 }
             }
+        }
+        else if(variant.equals("preChess"))
+        {
+            for (int i = 0; i < 8; i++)
+                pieces[i][1] = new Pawn(i,1,false);
+
+            for (int i = 0; i < 8; i++)
+                pieces[i][6] = new Pawn(i,6,true);
         }
     } 
 
