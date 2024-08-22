@@ -15,7 +15,7 @@ import java.util.*;
 
 public class Board implements Serializable
 {
-    private Piece[][] pieces;
+    private final Piece[][] pieces;
     private static final String[] pieceList = {"King","Queen","Rook","Rook","Knight","Knight","Bishop","Bishop"};
 
     public Board()
@@ -51,170 +51,192 @@ public class Board implements Serializable
     {
         pieces = new Piece[8][8];
 
-        if (variant.equals("960"))
+        switch(variant) 
         {
-            ArrayList<String> piecesLeft = new ArrayList<String>();
-            Collections.addAll(piecesLeft, pieceList);
-            int index;
+            case "960" -> {
+                ArrayList<String> piecesLeft = new ArrayList<>();
+                Collections.addAll(piecesLeft, pieceList);
+                int index;
 
-            for (int i = 0; i < 8; i++)
-            {
-                index = (int) (Math.random() * (piecesLeft.size() - 1));
-                String name = piecesLeft.remove(index);
+                for (int i = 0; i < 8; i++)
+                {
+                    index = (int) (Math.random() * (piecesLeft.size() - 1));
+                    String name = piecesLeft.remove(index);
 
-                if (name.equals("Rook"))
-                    pieces[i][0] = new Rook(i,0,false);
-                else if (name.equals("Knight"))
+                    switch (name) {
+                        case "Rook":
+                            pieces[i][0] = new Rook(i,0,false);
+                            break;
+                        case "Knight":
+                            pieces[i][0] = new Knight(i,0,false);
+                            break;
+                        case "Bishop":
+                            pieces[i][0] = new Bishop(i,0,false);
+                            break;
+                        case "King":
+                            pieces[i][0] = new King(i,0,false);
+                            break;
+                        default:
+                            pieces[i][0] = new Queen(i,0,false);
+                            break;
+                    }
+                }
+                
+                Collections.addAll(piecesLeft, pieceList);
+
+                for (int j = 0; j < 8; j++)
+                {
+                    index = (int) (Math.random() * (piecesLeft.size() - 1));
+                    String name = piecesLeft.remove(index);
+                    System.out.println(index + name);
+
+                    switch (name) {
+                        case "Rook":
+                            pieces[j][7] = new Rook(j,0,true);
+                            break;
+                        case "Knight":
+                            pieces[j][7] = new Knight(j,0,true);
+                            break;
+                        case "Bishop":
+                            pieces[j][7] = new Bishop(j,0,true);
+                            break;
+                        case "King":
+                            pieces[j][7] = new King(j,0,true);
+                            break;
+                        default:
+                            pieces[j][7] = new Queen(j,0,true);
+                            break;
+                    }
+                }
+                
+                for (int i = 0; i < 8; i++)
+                    pieces[i][1] = new Pawn(i,1,false);
+
+                for (int i = 0; i < 8; i++)
+                    pieces[i][6] = new Pawn(i,6,true);
+            }
+            case "Checkers" -> {
+                for (int j = 0; j < 3; j++)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (i % 2 == 1 && j % 2 == 1)
+                            pieces[i][j] = new CheckersPiece(i,j,false);
+                        else if (i % 2 == 0 && j % 2 == 0)
+                            pieces[i][j] = new CheckersPiece(i,j,false);
+                    }
+                }
+
+                for (int j = 5; j < 8; j++)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if (i % 2 == 1 && j % 2 == 1)
+                            pieces[i][j] = new CheckersPiece(i,j,true);
+                        else if (i % 2 == 0 && j % 2 == 0)
+                            pieces[i][j] = new CheckersPiece(i,j,true);
+                    }
+                }
+            }
+            case "preChess" -> {
+                for (int i = 0; i < 8; i++)
+                    pieces[i][1] = new Pawn(i,1,false);
+
+                for (int i = 0; i < 8; i++)
+                    pieces[i][6] = new Pawn(i,6,true);
+            }
+            case "bad" -> {
+                Boolean white = false;
+                int index;
+                for (int j = 0; j < 8; j += 6)
+                {
+                    int multiplier = 1;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        index = (int) (Math.random() * 8);
+                        String name = pieceList[index];
+
+                        switch (name) {
+                            case "Rook":
+                                pieces[i][j] = new Rook(i, j, white);
+                                break;
+                            case "Knight":
+                                pieces[i][j] = new Knight(i, j, white);
+                                break;
+                            case "Bishop":
+                                pieces[i][j] = new Bishop(i, j, white);
+                                break;
+                            case "King":
+                                pieces[i][j] = new Pawn(i, j, white);
+                                break;
+                            default:
+                                pieces[i][j] = new Queen(i, j, white);
+                                break;
+                        }
+                            
+                        index = (int) (Math.random() * 8);
+                        name = pieceList[index];
+
+                        switch (name) {
+                            case "Rook":
+                                pieces[i][j + multiplier] = new Rook(i, j + multiplier, white);
+                                break;
+                            case "Knight":
+                                pieces[i][j + multiplier] = new Knight(i, j + multiplier, white);
+                                break;
+                            case "Bishop":
+                                pieces[i][j + multiplier] = new Bishop(i, j + multiplier, white);
+                                break;
+                            case "King":
+                                pieces[i][j + multiplier] = new Pawn(i, j + multiplier, white);
+                                break;
+                            default:
+                                pieces[i][j + multiplier] = new Queen(i, j + multiplier, white);
+                                break;
+                        }
+                    }
+                    white = true;
+                }
+                pieces[4][0] = new King(4,0,false);
+                pieces[4][7] = new King(4,7,true);
+            }
+            case "crossDerby" -> {
+                pieces[0][0] = new Knight(0,0,false);
+                pieces[7][7] = new Knight(7,7,true);
+
+                for (int i = 2; i < 6; i++)
+                {
                     pieces[i][0] = new Knight(i,0,false);
-                else if (name.equals("Bishop"))
-                    pieces[i][0] = new Bishop(i,0,false);
-                else if (name.equals("King"))
-                    pieces[i][0] = new King(i,0,false);
-                else
-                    pieces[i][0] = new Queen(i,0,false);
-            }
-            
-            Collections.addAll(piecesLeft, pieceList);
-
-            for (int j = 0; j < 8; j++)
-            {
-                index = (int) (Math.random() * (piecesLeft.size() - 1));
-                String name = piecesLeft.remove(index);
-                System.out.println(index + name);
-
-                if (name.equals("Rook"))
-                    pieces[j][7] = new Rook(j,0,true);
-                else if (name.equals("Knight"))
-                    pieces[j][7] = new Knight(j,0,true);
-                else if (name.equals("Bishop"))
-                    pieces[j][7] = new Bishop(j,0,true);
-                else if (name.equals("King"))
-                    pieces[j][7] = new King(j,0,true);
-                else
-                    pieces[j][7] = new Queen(j,0,true);
-            }
-            
-            for (int i = 0; i < 8; i++)
-                pieces[i][1] = new Pawn(i,1,false);
-
-            for (int i = 0; i < 8; i++)
-                pieces[i][6] = new Pawn(i,6,true);
-        }
-        else if (variant.equals("checkers"))
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                for (int i = 0; i < 8; i++)
-                {
-                    if (i % 2 == 1 && j % 2 == 1)
-                        pieces[i][j] = new CheckersPiece(i,j,false);
-                    else if (i % 2 == 0 && j % 2 == 0)
-                        pieces[i][j] = new CheckersPiece(i,j,false);
+                    pieces[i][1] = new Pawn(i,1,false);
+                    pieces[i][7] = new Knight(i,7,true);
+                    pieces[i][6] = new Pawn(i,6,true);
                 }
+                pieces[7][0] = new King(7,0,false);
+                pieces[0][7] = new Knight(0,7,true);
+                
+                
+                pieces[0][2] = new Pawn(0,2,false);
+                pieces[1][2] = new Pawn(1,2,false);
+                pieces[6][2] = new Pawn(6,2,false);
+                pieces[7][2] = new Pawn(7,2,false);
+                pieces[0][5] = new Pawn(0,5,true);
+                pieces[1][5] = new Pawn(1,5,true);
+                pieces[6][5] = new Pawn(6,5,true);
+                pieces[7][5] = new Pawn(7,5,true);
+
+                pieces[0][1] = new Empty(0,1);
+                pieces[1][0] = new Empty(1,0);
+                pieces[1][1] = new Empty(1,1);
+                pieces[0][6] = new Empty(0,6);
+                pieces[1][6] = new Empty(1,6);
+                pieces[1][7] = new Empty(1,7);
+                pieces[6][0] = new Empty(6,0);
+                pieces[6][1] = new Empty(6,1);
+                pieces[7][1] = new Empty(7,1);
+                pieces[6][6] = new Empty(6,6);
+                pieces[7][6] = new Empty(7,6);
+                pieces[6][7] = new Empty(6,7);
             }
-
-            for (int j = 5; j < 8; j++)
-            {
-                for (int i = 0; i < 8; i++)
-                {
-                    if (i % 2 == 1 && j % 2 == 1)
-                        pieces[i][j] = new CheckersPiece(i,j,true);
-                    else if (i % 2 == 0 && j % 2 == 0)
-                        pieces[i][j] = new CheckersPiece(i,j,true);
-                }
-            }
-        }
-        else if(variant.equals("preChess"))
-        {
-            for (int i = 0; i < 8; i++)
-                pieces[i][1] = new Pawn(i,1,false);
-
-            for (int i = 0; i < 8; i++)
-                pieces[i][6] = new Pawn(i,6,true);
-        }
-        else if (variant.equals("bad"))
-        {
-            Boolean white = false;
-
-            for (int j = 0; j < 8; j += 6)
-            {
-                int multiplier = 1;
-                for (int i = 0; i < 8; i++)
-                {
-                    int index = (int) (Math.random() * 8);
-                    String name = pieceList[index];
-
-                    if (name.equals("Rook"))
-                        pieces[i][j] = new Rook(i, j, white);
-                    else if (name.equals("Knight"))
-                        pieces[i][j] = new Knight(i, j, white);
-                    else if (name.equals("Bishop"))
-                        pieces[i][j] = new Bishop(i, j, white);
-                    else if (name.equals("King"))
-                        pieces[i][j] = new Pawn(i, j, white);
-                    else
-                        pieces[i][j] = new Queen(i, j, white);
-                        
-                    index = (int) (Math.random() * 8);
-                    name = pieceList[index];
-
-                    if (name.equals("Rook"))
-                        pieces[i][j + multiplier] = new Rook(i, j + multiplier, white);
-                    else if (name.equals("Knight"))
-                        pieces[i][j + multiplier] = new Knight(i, j + multiplier, white);
-                    else if (name.equals("Bishop"))
-                        pieces[i][j + multiplier] = new Bishop(i, j + multiplier, white);
-                    else if (name.equals("King"))
-                        pieces[i][j + multiplier] = new Pawn(i, j + multiplier, white);
-                    else
-                        pieces[i][j + multiplier] = new Queen(i, j + multiplier, white);
-
-                    System.out.println(toString());
-                }
-                multiplier = -1;
-                white = true;
-            }
-
-            pieces[4][0] = new King(4,0,false);
-            pieces[4][7] = new King(4,7,true);
-        }
-        else if (variant.equals("crossDerby"))
-        {
-            pieces[0][0] = new Knight(0,0,false);
-            pieces[7][7] = new Knight(7,7,true);
-
-            for (int i = 2; i < 6; i++)
-            {
-                pieces[i][0] = new Knight(i,0,false);
-                pieces[i][1] = new Pawn(i,1,false);
-                pieces[i][7] = new Knight(i,7,true);
-                pieces[i][6] = new Pawn(i,6,true);
-            }
-            pieces[7][0] = new King(7,0,false);
-            pieces[0][7] = new Knight(0,7,true);
-
-
-            pieces[0][2] = new Pawn(0,2,false);
-            pieces[1][2] = new Pawn(1,2,false);
-            pieces[6][2] = new Pawn(6,2,false);
-            pieces[7][2] = new Pawn(7,2,false);
-            pieces[0][5] = new Pawn(0,5,true);
-            pieces[1][5] = new Pawn(1,5,true);
-            pieces[6][5] = new Pawn(6,5,true);
-            pieces[7][5] = new Pawn(7,5,true);
-
-            pieces[0][1] = new Empty(0,1);
-            pieces[1][0] = new Empty(1,0);
-            pieces[1][1] = new Empty(1,1);
-            pieces[0][6] = new Empty(0,6);
-            pieces[1][6] = new Empty(1,6);
-            pieces[1][7] = new Empty(1,7);
-            pieces[6][0] = new Empty(6,0);
-            pieces[6][1] = new Empty(6,1);
-            pieces[7][1] = new Empty(7,1);
-            pieces[6][6] = new Empty(6,6);
-            pieces[7][6] = new Empty(7,6);
-            pieces[6][7] = new Empty(6,7);
         }
     } 
 
@@ -238,7 +260,7 @@ public class Board implements Serializable
     public String getPieceAbbr(int x, int y)
     {
         if (pieces[x][y] != null)
-        return pieces[x][y].getAbbr();
+            return pieces[x][y].getAbbr();
         return " ";
     }
 
@@ -254,14 +276,37 @@ public class Board implements Serializable
             {
                 Piece onBoard = pieces[x][y];
                 if (onBoard != null && onBoard instanceof King)
-                        return ((King) onBoard).check(this);
+                    return ((King) onBoard).check(this);
             }
         return false;
     }
 
+    public boolean inCheckMate(boolean white)
+    {
+        if (!inCheck(white))
+            return false;
+
+        for (int x = 0; x < 8; x++)
+            for (int y = 0; y < 8; y++)
+            {
+                Piece onBoard = pieces[x][y];
+                if (onBoard != null && onBoard instanceof King)
+                        return ((King) onBoard).checkmate(this);
+            }
+        return false;
+    }
+
+    /**
+     * Moves a piece
+     * @param x1 the current x coord
+     * @param y1 the current y coord
+     * @param x2 the x coord to move to
+     * @param y2 the y coord to move to
+     */
     public void movePiece(int x1, int y1, int x2, int y2)
     {
-        if (Main.atomic && pieces[x2][y2] != null)
+        System.out.println(Main.atomic);
+        if (Main.atomic && pieces[x2][y2] != null) // Blow up all non-pawns in surrounding squares for atomic
         {
             for (int i = x2 - 1; i < x2 + 2; i++)
                 for (int j = y2 - 1; j < y2 + 2; j++)
@@ -269,11 +314,13 @@ public class Board implements Serializable
                         pieces[i][j] = null;
         }
         else
-            pieces[x2][y2] = pieces[x1][y1];
+            pieces[x2][y2] = pieces[x1][y1];  // move piece
+
         pieces[x1][y1] = null;
         System.out.println(toString());
     }
 
+    @Override
     public String toString()
     {
         String s = "";
@@ -294,5 +341,15 @@ public class Board implements Serializable
     public void setPiece(int x, int y, Piece p)
     {
         pieces[x][y] = p;
+    }
+
+    public Board copy()  // THIS METHOD COULD CAUSE ISSUES
+    {
+        Board temp = new Board();
+        for (int x = 0; x < 8; x++)
+            for (int y = 0; y < 8; y++)
+                temp.setPiece(x,y,getPiece(x,y));
+        
+        return temp;
     }
 }

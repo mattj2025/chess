@@ -7,6 +7,7 @@ public class King extends Piece
     super(x,y,white,"K","images\\king");
   }
 
+  @Override
   public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
   {
     ArrayList<ArrayList<Integer>> check = new ArrayList<>();
@@ -21,8 +22,8 @@ public class King extends Piece
             Piece other = b.getPiece(j,i);
             if (other != null && other.isWhite() != isWhite() && !(other instanceof King))
             {
-                if (other instanceof Pawn)
-                    otherMoves = ((Pawn) other).getAttacks(b);
+                if (other instanceof Pawn pawn)
+                    otherMoves = pawn.getAttacks(b);
                 else
                     otherMoves = other.getPossibleMoves(b);
                 if (!otherMoves.isEmpty())
@@ -58,22 +59,73 @@ public class King extends Piece
     ArrayList<ArrayList<Integer>> otherMoves;
 
     for (int i = 0; i < 8; i++)
-        for (int j = 0; j < 8; j++)
+      for (int j = 0; j < 8; j++)
+      {
+        Piece other = b.getPiece(j,i);
+        if (other != null && other.isWhite() != isWhite() && !(other instanceof King))
         {
-            Piece other = b.getPiece(j,i);
-            if (other != null && other.isWhite() != isWhite() && !(other instanceof King))
-            {
-                if (other instanceof Pawn)
-                    otherMoves = ((Pawn) other).getAttacks(b);
-                else
-                    otherMoves = other.getPossibleMoves(b);
-                for (int c = 0; c < otherMoves.get(0).size(); c++)
-                {
-                    if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY())
-                        return true;
-                }
-            }
+          if (other instanceof Pawn pawn)
+            otherMoves = pawn.getAttacks(b);
+          else
+            otherMoves = other.getPossibleMoves(b);
+
+          if (!otherMoves.isEmpty())
+            for (int c = 0; c < otherMoves.get(0).size(); c++)
+              if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY())
+                return true;
         }
+      }
     return false;
+  }
+
+  public boolean checkmate(Board b)
+  {
+    ArrayList<ArrayList<Integer>> otherMoves;
+
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 8; j++)
+      {
+        Piece other = b.getPiece(j,i);
+        if (other != null && other.isWhite() != isWhite() && !(other instanceof King))
+        {
+          if (other instanceof Pawn pawn)
+            otherMoves = pawn.getAttacks(b);
+          else
+            otherMoves = other.getPossibleMoves(b);
+          for (int c = 0; c < otherMoves.get(0).size(); c++)
+          {
+            if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY())
+              {
+                ArrayList<ArrayList<Integer>> moves = getPossibleMoves(b);
+                for (int m = 0; m < moves.get(0).size(); m++)  // Check if King can move out of check
+                {
+                  Board temp = b.copy();
+                  temp.movePiece(getX(), getY(), moves.get(0).get(m), moves.get(1).get(m));
+                  if (!check(temp))
+                    return false;
+                }
+
+                // Check every piece on team to see if it can block
+                for (int g = 0; g < 8; g++)
+                  for (int h = 0; h < 8; h++)
+                  {
+                    Piece team = b.getPiece(g,h);
+                    if (team != null && team.isWhite() == isWhite() && !(other instanceof King))
+                    {
+                      ArrayList<ArrayList<Integer>> blocks = team.getPossibleMoves(b);
+                      for (int m = 0; m < blocks.get(0).size(); m++)
+                      {
+                        Board temp = b.copy();
+                        temp.movePiece(team.getX(), team.getY(), blocks.get(0).get(m), blocks.get(1).get(m));
+                        if (!check(temp))
+                          return false;
+                      }
+                    }
+                  }
+              }
+          }
+        } 
+      }
+    return true;
   }
 }

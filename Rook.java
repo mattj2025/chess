@@ -7,6 +7,7 @@ public class Rook extends Piece
     super(x,y,white,"R","images\\rook");
   }
 
+  @Override
   public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
   {
     ArrayList<ArrayList<Integer>> moves = new ArrayList<>();

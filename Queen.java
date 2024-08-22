@@ -7,6 +7,7 @@ public class Queen extends Piece
     super(x,y,white,"Q","images\\queen");
   }
 
+  @Override
   public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
   {
     ArrayList<ArrayList<Integer>> moves = new ArrayList<>();

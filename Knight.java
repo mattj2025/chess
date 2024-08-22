@@ -6,7 +6,8 @@ public class Knight extends Piece
   {
     super(x,y,white,"N","images\\knight");
   }
-
+  
+  @Override
   public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
   {
     ArrayList<ArrayList<Integer>> moves = new ArrayList<>();

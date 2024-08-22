@@ -1,7 +1,7 @@
-import java.net.*;
-import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.*;
+import javax.swing.*;
 
 public class Client implements ActionListener 
 {
@@ -12,6 +12,7 @@ public class Client implements ActionListener
     private OutputStream outputStream;
     private int port;
 
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         try 
@@ -46,7 +47,7 @@ public class Client implements ActionListener
                         try {
                             disconnect();
                         } catch (IOException e2) {
-                            e2.printStackTrace();
+                            System.out.println("Oopsies");
                         }
                     }
                 }
@@ -78,9 +79,34 @@ public class Client implements ActionListener
         inputStream = clientSocket.getInputStream();
         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
         Main.whiteTurn = !Main.whiteTurn;
-        Main.reloadBoard(Main.buttons, (Board) objectInputStream.readObject());
+        Board b = (Board) objectInputStream.readObject();
+        Main.chess = b;
+        Main.reloadBoard(Main.buttons, b);
         System.out.println("Board recieved from Host");
     }
+
+    /* 
+
+    Version using game instead of only the board
+    Will keep variants consistent, however it currently does not work
+
+    public void sendBoard(Board b) throws IOException {
+        outputStream = clientSocket.getOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+        objectOutputStream.writeObject(new Game());
+        System.out.println("Board sent from Client");
+    }
+
+    public void recieveBoard() throws IOException, ClassNotFoundException {
+        inputStream = clientSocket.getInputStream();
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+        Main.whiteTurn = !Main.whiteTurn;
+        Game g = (Game) objectInputStream.readObject();
+        g.loadGame();
+        Main.reloadBoard(Main.buttons, g.getBoard());
+        System.out.println("Board recieved from Host");
+    }
+    */
 
     public void disconnect() throws IOException
     {

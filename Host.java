@@ -1,6 +1,6 @@
-import java.net.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.*;
 import javax.swing.*;
 
 public class Host implements ActionListener 
@@ -11,6 +11,7 @@ public class Host implements ActionListener
     private OutputStream outputStream;
     private static int port = 49152;
 
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         try 
@@ -24,8 +25,8 @@ public class Host implements ActionListener
             // TODO - allow host to cancel joining bc app currently freezes
             
             //Thread cancelThread = new Thread(() -> {
-                Timer cancel = new Timer(5000, new CancelListener());
-                cancel.start();
+                //Timer cancel = new Timer(5000, new CancelListener());
+                //cancel.start();
             //});
             //cancelThread.start();
 
@@ -57,7 +58,7 @@ public class Host implements ActionListener
                         try {
                             disconnect();
                         } catch (IOException e2) {
-                            e2.printStackTrace();
+                            System.out.println("Oopsies");
                         }
                     }
                 }
@@ -81,9 +82,33 @@ public class Host implements ActionListener
         inputStream = clientSocket.getInputStream();
         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
         Main.whiteTurn = !Main.whiteTurn;
-        Main.reloadBoard(Main.buttons, (Board) objectInputStream.readObject());
+        Board b = (Board) objectInputStream.readObject();
+        Main.chess = b;
+        Main.reloadBoard(Main.buttons, b);
         System.out.println("Board recieved from Client");
     }
+
+    /*
+
+    See Client file for details
+
+    public void sendBoard(Board b) throws IOException {
+        outputStream = clientSocket.getOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+        objectOutputStream.writeObject(new Game());
+        System.out.println("Board sent from Host");
+    }
+
+    public void recieveBoard() throws IOException, ClassNotFoundException {
+        inputStream = clientSocket.getInputStream();
+        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+        Main.whiteTurn = !Main.whiteTurn;
+        Game g = (Game) objectInputStream.readObject();
+        g.loadGame();
+        Main.reloadBoard(Main.buttons, g.getBoard());
+        System.out.println("Board recieved from Client");
+    }
+    */
 
     public void disconnect() throws IOException
     {
@@ -101,13 +126,14 @@ public class Host implements ActionListener
 
     public class CancelListener implements ActionListener
     {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             System.out.println("Failed");
             try {
                 disconnect();
             } catch (IOException e1) {
-                e1.printStackTrace();
+                System.out.println("Oopsies");
             }
         }
     }

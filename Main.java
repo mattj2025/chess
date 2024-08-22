@@ -1,8 +1,8 @@
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.ArrayList;
+import javax.swing.*;
 
 public class Main {
     private static final int BUTTON_SIZE = 80;
@@ -10,34 +10,35 @@ public class Main {
     public static Main mainInstance = new Main();
     public static JButton[][] buttons;
     public static JFrame jFrame;
+    public static boolean whiteTurn = true;
     public static boolean selected = false;
     public static boolean moveDuck = false;
-    public static int x = 0;
-    public static int y = 0;
-    public static boolean whiteTurn = true;
-    public static boolean duck = false;
+    public static boolean duck = false;  // TODO: when duck mode is played with local multiplayer the second player cannot move
     public static boolean atomic = false;
     public static boolean torpedo = false;
     public static boolean sideways = false;
     public static boolean is960 = false;
     public static boolean isCheckers = false;
     public static boolean isPre = false;
-    public static int placeInt = 0;
     public static boolean blindfold = false;
     public static boolean multiplayer = false;
     public static boolean isWhite = false;
     public static boolean isHost = false;
     public static boolean isBad = false;
     public static boolean isDerby = false;
-    public static String piece;
+    public static boolean sendBoard = false;
     public static Host host = new Host();
     public static Client client = new Client();
-    public static boolean sendBoard = false;
     public static Component joinB;
     public static Component hostB;
     public static Component disconnectB;
     public static Component resetB;
+    public static Component reloadB;
     public static Component pastMoves;
+    public static String piece;
+    public static int x = 0;
+    public static int y = 0;
+    public static int placeInt = 0;
     public static int theme = 0;
     public static Color[] background = {Color.WHITE, Color.DARK_GRAY};
     public static Color[] tileA = {Color.WHITE, Color.LIGHT_GRAY};
@@ -56,7 +57,7 @@ public class Main {
     private static void createAndShowGUI() throws IOException {
         jFrame = new JFrame("Chess");
         jFrame.setLayout(new FlowLayout());
-        jFrame.setSize(700, 800);
+        jFrame.setSize(700, 840);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setBackground(background[theme]);
 
@@ -79,51 +80,36 @@ public class Main {
         load.addActionListener(new Load());
         JMenu colorPicker = new JMenu("Choose Color Theme");
         
-        // TODO - add more themes
-
         JMenuItem original = new JMenuItem("Original");
-        original.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                theme = 0;
-                reloadBoard(buttons, chess);
-            }
+        original.addActionListener((ActionEvent e) -> {
+            theme = 0;
+            reloadBoard(buttons, chess);
         });
 
         JMenuItem dark = new JMenuItem("Dark");
-        dark.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                theme = 1;
-                reloadBoard(buttons, chess);
-            }
+        dark.addActionListener((ActionEvent e) -> {
+            theme = 1;
+            reloadBoard(buttons, chess);
         });
 
         colorPicker.add(original);
         colorPicker.add(dark);
 
         JMenuItem tutorial = new JMenuItem("Tutorial");
-        tutorial.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                File file = new File("resources\\chessRules.pdf");
-                if (file.exists() && Desktop.isDesktopSupported())
-                {
-                    try {
-                        Desktop.getDesktop().browse(file.toURI());
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
+        tutorial.addActionListener((ActionEvent e) -> {
+            File file1 = new File("resources\\chessRules.pdf");
+            if (file1.exists() && Desktop.isDesktopSupported()) {
+                try {
+                    Desktop.getDesktop().browse(file1.toURI());
+                }catch (IOException e1) {
+                    System.out.println("Oopsies");
                 }
             }
         });
 
         JMenuItem credits = new JMenuItem("Credits");
-        credits.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e)
-            {
-                JOptionPane.showMessageDialog(jFrame, "Created by Matt Johnson");
-            }
+        credits.addActionListener((ActionEvent e) -> {
+            JOptionPane.showMessageDialog(jFrame, "Created by Matt Johnson");
         });
 
         file.add(save);
@@ -134,113 +120,63 @@ public class Main {
 
         JCheckBox duckBox = new JCheckBox("Duck");
         duckBox.setSelected(duck);
-        duckBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    duck = true;
-                else
-                    duck = false;
-            }
+        duckBox.addItemListener((ItemEvent e) -> {
+            duck = !atomic;
         });
 
         JCheckBox atomicBox = new JCheckBox("Atomic");
         atomicBox.setSelected(atomic);
-        atomicBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    atomic = true;
-                else
-                    atomic = false;
-            }
+        atomicBox.addItemListener((ItemEvent e) -> {
+            atomic = !atomic;
         });
 
         JCheckBox torpedoBox = new JCheckBox("Torpedo");
         torpedoBox.setSelected(torpedo);
-        torpedoBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    torpedo = true;
-                else
-                    torpedo = false;
-            }
+        torpedoBox.addItemListener((ItemEvent e) -> {
+            torpedo = !torpedo;
         });
 
         JCheckBox sidewaysBox = new JCheckBox("Sideways");
         sidewaysBox.setSelected(sideways);
-        sidewaysBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    sideways = true;
-                else
-                    sideways = false;
-            }
+        sidewaysBox.addItemListener((ItemEvent e) -> {
+            sideways = !sideways;
         });
 
         JCheckBox is960Box = new JCheckBox("960");
         is960Box.setSelected(is960);
-        is960Box.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    is960 = true;
-                else
-                    is960 = false;
-            }
+        is960Box.addItemListener((ItemEvent e) -> {
+            is960 = !is960;
         });
 
         JCheckBox isCheckersBox = new JCheckBox("Checkers");
         isCheckersBox.setSelected(isCheckers);
-        isCheckersBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    isCheckers = true;
-                else
-                    isCheckers = false;
-            }
+        isCheckersBox.addItemListener((ItemEvent e) -> {
+            isCheckers = !isCheckers;
         });
 
         JCheckBox isPreBox = new JCheckBox("Pre-Chess");
         isPreBox.setSelected(isPre);
-        isPreBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    isPre = true;
-                else
-                    isPre = false;
-            }
+        isPreBox.addItemListener((ItemEvent e) -> {
+            isPre = !isPre;
         });
         
         JCheckBox isBadBox = new JCheckBox("Really Bad");
         isBadBox.setSelected(isBad);
-        isBadBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    isBad = true;
-                else
-                    isBad = false;
-            }
+        isBadBox.addItemListener((ItemEvent e) -> {
+            isBad = !isBad;
         });
 
         JCheckBox isDerbyBox = new JCheckBox("Cross Derby");
         isDerbyBox.setSelected(isDerby);
-        isDerbyBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)
-                    isDerby = true;
-                else
-                    isDerby = false;
-            }
+        isDerbyBox.addItemListener((ItemEvent e) -> {
+            isDerby = !isDerby;
         });
 
         JCheckBox blindfoldBox = new JCheckBox("Blindfold");
         blindfoldBox.setSelected(blindfold);
-        blindfoldBox.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED)           
-                    blindfold = true;
-                else
-                    blindfold = false;
-                reloadBoard(buttons,chess);
-            }
+        blindfoldBox.addItemListener((ItemEvent e) -> {
+            blindfold = !blindfold;
+            reloadBoard(buttons,chess);
         });
 
         JButton hostButton = new JButton("Host");
@@ -261,12 +197,6 @@ public class Main {
         disconnectButton.addActionListener(new Disconnect());
         disconnectB = disconnectButton;
 
-        JButton resetButton = new JButton("Reset");
-        resetButton.setPreferredSize(new Dimension(100,40));
-        resetButton.setBackground(background[theme]);
-        resetButton.addActionListener(new Reset(jFrame));
-        resetB = resetButton;
-
         /*JTextArea moves = new JTextArea("");
         moves.setFont(new Font("Arial", Font.PLAIN, 18));
         pastMoves = moves;*/
@@ -274,8 +204,9 @@ public class Main {
         JPanel panel = new JPanel(new GridLayout(8, 8));
         buttons = new JButton[8][8];
 
-        for (int y = 0; y < 8; y++)
-            for (int x = 0; x < 8; x++) 
+
+        for (y = 0; y < 8; y++)
+            for (x = 0; x < 8; x++) 
             {
                 JButton button = new JButton();
                 button.setPreferredSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
@@ -289,6 +220,18 @@ public class Main {
                 panel.add(button);
                 buttons[x][y] = button;
             }
+
+        JButton resetButton = new JButton("Reset");
+        resetButton.setPreferredSize(new Dimension(100,40));
+        resetButton.setBackground(background[theme]);
+        resetButton.addActionListener(new Reset(jFrame,buttons,chess));
+        resetB = resetButton;
+
+        JButton reloadButton = new JButton("Reload");
+        reloadButton.setPreferredSize(new Dimension(100,40));
+        reloadButton.setBackground(background[theme]);
+        reloadButton.addActionListener(new Reload(buttons,chess));
+        reloadB = reloadButton;
     
         jFrame.setJMenuBar(menuBar);
         jFrame.add(title);
@@ -304,6 +247,7 @@ public class Main {
         jFrame.add(isDerbyBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
+        jFrame.add(reloadButton);
         jFrame.add(hostButton);
         jFrame.add(joinButton);
         //jFrame.add(moves);    // ugly
@@ -312,11 +256,12 @@ public class Main {
 
     private static class Reset implements ActionListener 
     {
-        private JFrame f;
+        private final JFrame f;
 
-        public Reset(JFrame frame)
+        public Reset(JFrame frame, JButton[][] buttons, Board chess)
         {
             f = frame;
+            reloadBoard(buttons, chess);
         }
 
         @Override
@@ -342,7 +287,7 @@ public class Main {
             try {
                 createAndShowGUI();
             } catch (IOException e1) {
-                e1.printStackTrace();
+                System.out.println("Failed to display GUI");
             }
             f.dispose();
 
@@ -351,8 +296,27 @@ public class Main {
         } 
     }
 
+    private static class Reload implements ActionListener 
+    {
+        JButton[][] b;
+        Board c;
+
+        public Reload(JButton[][] buttons, Board chess)
+        {
+            b = buttons;
+            c = chess;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) 
+        { 
+            reloadBoard(b, c);
+        } 
+    }
+
     private static class Disconnect implements ActionListener
     {
+        @Override
         public void actionPerformed(ActionEvent e)
         {
             if (multiplayer)
@@ -363,15 +327,15 @@ public class Main {
                         client.disconnect();
                     System.out.println("Disconnected");
                 } catch(IOException e1) {
-                    e1.printStackTrace();
+                    System.out.println("Failed to Disconnect");
                 }
         }
     }
 
     private static class ButtonClickListener implements ActionListener 
     {
-        private int row;
-        private int col;
+        private final int row;
+        private final int col;
         private Board chess;
 
         public ButtonClickListener(int row, int col, Board chess) 
@@ -385,6 +349,7 @@ public class Main {
         public void actionPerformed(ActionEvent e) 
         {
             System.out.println("Button clicked at row " + row + ", column " + col);
+
             if (isPre && placeInt < 16 && ((whiteTurn && col == 7) || (!whiteTurn && col == 0)))
             {
                 if (placeInt < 4)
@@ -424,8 +389,10 @@ public class Main {
                                     buttons[i][j].setIcon(null);
                             }
                     chess.setPiece(row,col, new Duck(row,col));
+
                     if (!blindfold)
                         buttons[row][col].setIcon(chess.getPiece(row,col).getIcon());
+
                     moveDuck = false;
                     sendBoard = true;
                 }
@@ -434,13 +401,16 @@ public class Main {
             }
             else if (selected)
             {
-                if(chess.getPiece(x,y).move(row,col,chess) && (!multiplayer || whiteTurn == isWhite))
+                if (chess.getPiece(x,y).move(row,col,chess) && (!multiplayer || whiteTurn == isWhite))
                 {
-                    System.out.println(chess.getPiece(row,col).getAbbr() + ((char) (row + 97)) + col);
-                    //((JTextArea) pastMoves).setText(((JTextArea) pastMoves).getText() + "\n" + chess.getPiece(row,col).getAbbr() + ((char) (row + 97)) + col);    // super ugly rn
+                    // System.out.println(chess.getPieceAbbr(row, col) + ((char) (row + 97)) + col);
+                    // ((JTextArea) pastMoves).setText(((JTextArea) pastMoves).getText() + "\n" + chess.getPiece(row,col).getAbbr() + ((char) (row + 97)) + col);    // super ugly currently
+                    
                     buttons[x][y].setIcon(null);
+
                     if (chess.getPiece(row,col) != null && !blindfold)
                         buttons[row][col].setIcon(chess.getPiece(row,col).getIcon());
+
                     whiteTurn = !whiteTurn;
 
                     if (duck)
@@ -479,6 +449,8 @@ public class Main {
                             buttons[i][j].setBackground(tileB[theme]);
 
                 selected = false;
+
+                // TODO - check if checkmate
             }
             else if (chess.isOccupied(row, col) && chess.getPiece(row,col).isWhite() == whiteTurn && (!chess.inCheck(whiteTurn) || chess.getPiece(row,col) instanceof King || !whiteTurn) && !(chess.getPiece(row, col) instanceof Duck))
             {
@@ -493,7 +465,8 @@ public class Main {
 
                 // TODO - clean the look of a finished game
                 ArrayList<ArrayList<Integer>> possibleMoves = chess.getPiece(row,col).getPossibleMoves(chess);
-                if (chess.getPiece(row,col) instanceof King && possibleMoves.get(0).size() == 0)
+                //if (chess.getPiece(row,col) instanceof King && possibleMoves.get(0).isEmpty() && chess.inCheck(whiteTurn))
+                if (chess.inCheckMate(whiteTurn))
                 {
                     System.out.println("Game Over");
                     String winner = "White";
@@ -506,7 +479,7 @@ public class Main {
                     try {
                         createAndShowGUI();
                     } catch (IOException e1) {
-                        e1.printStackTrace();
+                        System.out.println("Failed to Display GUI");
                     }
 
                     sendBoard = true;
@@ -527,12 +500,12 @@ public class Main {
             {
                 try
                 {
-                if (isHost)
-                    host.sendBoard(chess);
-                else
-                    client.sendBoard(chess);
+                    if (isHost)
+                        host.sendBoard(chess);
+                    else
+                        client.sendBoard(chess);
                 } catch (IOException e1) {
-                    e1.printStackTrace();
+                    System.out.println("Failed to send board");
                 }
 
                 sendBoard = false;
@@ -561,6 +534,7 @@ public class Main {
     {
         jFrame.setBackground(background[theme]);
 
+        System.out.println(b);
         for (int i = 0; i < 8; i++) 
             for (int j = 0; j < 8; j++)
             {
@@ -571,6 +545,7 @@ public class Main {
 
                 if (chess.occupation(i,j) == 3)
                     buttons[i][j].setBackground(emptyColors[theme]);
+
                 buttons[i][j].removeActionListener(buttons[i][j].getActionListeners()[0]);
                 buttons[i][j].addActionListener(new ButtonClickListener(i, j, chess));
             }
@@ -583,12 +558,12 @@ public class Main {
                         buttons[i][j].setIcon(b.getPiece(i,j).getIcon());
                     else
                         buttons[i][j].setIcon(null);
-                    }
+                }
         else
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 8; j++)
                     if (chess.occupation(i, j) != 3)
-                    buttons[i][j].setIcon(null);
+                        buttons[i][j].setIcon(null);
 
     }
 }

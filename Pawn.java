@@ -12,6 +12,7 @@ public class Pawn extends Piece
     }
 
     // TODO - add en passant
+    @Override
     public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
     {
     ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
@@ -92,6 +93,7 @@ public class Pawn extends Piece
     return moves;
   }
 
+  @Override
   public boolean move(int x, int y, Board b)
   {
     boolean r = super.move(x,y,b);
@@ -107,14 +109,12 @@ public class Pawn extends Piece
                                               options,
                                               options[0]);
 
-      if (pick == 0)
-        b.setPiece(x,y,new Queen(x,y,isWhite()));
-      else if (pick == 1)
-        b.setPiece(x,y,new Knight(x,y,isWhite()));
-      else if (pick == 2)
-        b.setPiece(x,y,new Rook(x,y,isWhite()));
-      else
-        b.setPiece(x,y,new Bishop(x,y,isWhite()));
+      switch(pick) {
+        case 0 -> b.setPiece(x,y,new Queen(x,y,isWhite()));
+        case 1 -> b.setPiece(x,y,new Knight(x,y,isWhite()));
+        case 2 -> b.setPiece(x,y,new Rook(x,y,isWhite()));
+        default -> b.setPiece(x,y,new Bishop(x,y,isWhite()));
+      }
     }
     if (firstMove)
         firstMove = !r;

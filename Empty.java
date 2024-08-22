@@ -4,11 +4,12 @@ public class Empty extends Piece
 {
     public Empty(int x, int y)
     {
-        super(x, y, false, " ", "images\\pawn");
+        super(x, y, false, " ", "");
     }
 
+    @Override
     public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
     {
-        return new ArrayList<ArrayList<Integer>>();
+        return new ArrayList<>();
     }
 }

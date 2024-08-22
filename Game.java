@@ -50,4 +50,9 @@ public class Game implements Serializable
         Main.isWhite = isWhite;
         Main.reloadBoard(Main.buttons, chess);
     }
+
+    public Board getBoard()
+    {
+        return chess;
+    }
 }
