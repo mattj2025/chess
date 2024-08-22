@@ -28,11 +28,11 @@ public class Load implements ActionListener
             game.loadGame();
 
         } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
+            System.out.println("FileNotFoundException");
         } catch (IOException e1) {
-            e1.printStackTrace();
+            System.out.println("IOException");
         } catch (ClassNotFoundException e1) {
-            e1.printStackTrace();
+            System.out.println("ClassNotFoundException");
         }
     }
 }

@@ -5,6 +5,7 @@ import javax.swing.JOptionPane;
 
 public class Save implements ActionListener
 {
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         if (Main.multiplayer)
@@ -15,13 +16,14 @@ public class Save implements ActionListener
             {
                 oos.writeObject(new Game());
                 File file = new File("saves\\" + JOptionPane.showInputDialog("Name of file:") + ".ser");
-                FileOutputStream fos = new FileOutputStream(file);
-                fos.write(bos.toByteArray());
-                fos.flush();
-                fos.close();
+                
+                try (FileOutputStream fos = new FileOutputStream(file)) {
+                    fos.write(bos.toByteArray());
+                    fos.flush();
+                }
 
             } catch (IOException e1) {
-                e1.printStackTrace();
+                System.out.println("Failed to Save");
             }
         }
     }
