@@ -102,4 +102,10 @@ public class Rook extends Piece
 
     return moves;
   }
+
+  @Override
+  public Rook copy()
+  {
+    return new Rook(getX(), getY(), isWhite());
+  }
 }

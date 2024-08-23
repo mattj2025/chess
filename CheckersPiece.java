@@ -78,4 +78,10 @@ public class CheckersPiece extends Piece
 
         return r;
   }
+
+  @Override
+  public CheckersPiece copy()
+  {
+    return new CheckersPiece(getX(), getY(), isWhite());
+  }
 }

@@ -46,4 +46,10 @@ public class CheckersKingPiece extends Piece
 
         return moves;
     }
+
+    @Override
+    public CheckersKingPiece copy()
+    {
+        return new CheckersKingPiece(getX(), getY(), isWhite());
+    }
 }

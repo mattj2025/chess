@@ -1,7 +1,6 @@
-import javax.swing.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
+import javax.swing.*;
 
 public abstract class Piece implements Serializable
 {
@@ -53,6 +52,11 @@ public abstract class Piece implements Serializable
 
   public boolean move(int xCoord, int yCoord, Board b)
   {
+    Board temp = b.copy();
+    temp.movePiece(x, y, xCoord, yCoord);
+    if (temp.inCheck(Main.whiteTurn))  // Check to make sure moving the piece won't lead to check
+      return false;
+
     ArrayList<ArrayList<Integer>> moves = getPossibleMoves(b);
     moves.add(new ArrayList<>());
     moves.add(new ArrayList<>());
@@ -62,7 +66,7 @@ public abstract class Piece implements Serializable
     for (int i = 0; i < moves.get(0).size(); i++)
       if (moves.get(0).get(i) == xCoord && moves.get(1).get(i) == yCoord)
         canMove = true;
-        
+
     if (canMove)
     {
       b.movePiece(x, y, xCoord, yCoord);
@@ -104,4 +108,6 @@ public abstract class Piece implements Serializable
 
     return legalMoves;
   }
+
+  public abstract Piece copy();
 }

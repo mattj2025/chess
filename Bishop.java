@@ -112,4 +112,10 @@ public class Bishop extends Piece
 
     return moves;
   }
+
+  @Override
+  public Bishop copy()
+  {
+    return new Bishop(getX(), getY(), isWhite());
+  }
 }

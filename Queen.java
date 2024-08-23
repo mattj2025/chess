@@ -203,4 +203,10 @@ public class Queen extends Piece
 
     return moves;
   }
+
+  @Override
+  public Queen copy()
+  {
+    return new Queen(getX(), getY(), isWhite());
+  }
 }

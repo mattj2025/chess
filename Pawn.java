@@ -97,6 +97,9 @@ public class Pawn extends Piece
   public boolean move(int x, int y, Board b)
   {
     boolean r = super.move(x,y,b);
+    if (!r)
+      return false;
+      
     if (y == 0)
     {
       String[] options = {"Queen", "Knight", "Rook", "Bishop"};
@@ -119,5 +122,11 @@ public class Pawn extends Piece
     if (firstMove)
         firstMove = !r;
     return r;
+  }
+
+  @Override
+  public Pawn copy()
+  {
+    return new Pawn(getX(), getY(), isWhite());
   }
 }

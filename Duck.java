@@ -24,4 +24,10 @@ public class Duck extends Piece
 
     return moves;
   }
+
+  @Override
+  public Duck copy()
+  {
+    return new Duck(getX(), getY());
+  }
 }

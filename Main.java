@@ -388,6 +388,7 @@ public class Main {
                                 if (!blindfold)
                                     buttons[i][j].setIcon(null);
                             }
+
                     chess.setPiece(row,col, new Duck(row,col));
 
                     if (!blindfold)
@@ -452,7 +453,7 @@ public class Main {
 
                 // TODO - check if checkmate
             }
-            else if (chess.isOccupied(row, col) && chess.getPiece(row,col).isWhite() == whiteTurn && (!chess.inCheck(whiteTurn) || chess.getPiece(row,col) instanceof King || !whiteTurn) && !(chess.getPiece(row, col) instanceof Duck))
+            else if (chess.isOccupied(row, col) && chess.getPiece(row,col).isWhite() == whiteTurn && !(chess.getPiece(row, col) instanceof Duck))
             {
                 JButton clickedButton = buttons[row][col];
                 
@@ -485,8 +486,14 @@ public class Main {
                     sendBoard = true;
                 }
                 else if (!multiplayer || (isWhite == whiteTurn))
-                    for (int i = 0; i < possibleMoves.get(0).size(); i++)
-                        buttons[possibleMoves.get(0).get(i)][possibleMoves.get(1).get(i)].setBackground(movesColors[theme]);
+                {
+                    for (int i = possibleMoves.get(0).size() - 1; i > -1; i--)
+                    {
+                        Board temp = chess.copy();
+                        if (temp.getPiece(row,col).move(possibleMoves.get(0).get(i), possibleMoves.get(1).get(i), temp))
+                            buttons[possibleMoves.get(0).get(i)][possibleMoves.get(1).get(i)].setBackground(movesColors[theme]);
+                    }
+                }
 
                 if (!multiplayer || (isWhite == whiteTurn))
                     clickedButton.setBackground(selectColors[theme]);

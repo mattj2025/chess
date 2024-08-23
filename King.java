@@ -69,10 +69,12 @@ public class King extends Piece
           else
             otherMoves = other.getPossibleMoves(b);
 
-          if (!otherMoves.isEmpty())
-            for (int c = 0; c < otherMoves.get(0).size(); c++)
-              if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY())
-                return true;
+          for (int c = 0; c < otherMoves.get(0).size(); c++)
+            if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY())
+            {
+              System.out.println("In Check");
+              return true;
+            }
         }
       }
     return false;
@@ -127,5 +129,11 @@ public class King extends Piece
         } 
       }
     return true;
+  }
+
+  @Override
+  public King copy()
+  {
+    return new King(getX(), getY(), isWhite());
   }
 }

@@ -12,4 +12,10 @@ public class Empty extends Piece
     {
         return new ArrayList<>();
     }
+
+    @Override
+  public Empty copy()
+  {
+    return new Empty(getX(), getY());
+  }
 }

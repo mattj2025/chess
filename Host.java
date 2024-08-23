@@ -9,7 +9,7 @@ public class Host implements ActionListener
     private Socket clientSocket;
     private InputStream inputStream;
     private OutputStream outputStream;
-    private static int port = 49152;
+    private static int port = 1024;
 
     @Override
     public void actionPerformed(ActionEvent e)

@@ -61,4 +61,10 @@ public class Knight extends Piece
 
     return moves;
   }
+
+  @Override
+  public Knight copy()
+  {
+    return new Knight(getX(), getY(), isWhite());
+  }
 }

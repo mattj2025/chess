@@ -343,12 +343,13 @@ public class Board implements Serializable
         pieces[x][y] = p;
     }
 
-    public Board copy()  // THIS METHOD COULD CAUSE ISSUES
+    public Board copy() 
     {
         Board temp = new Board();
         for (int x = 0; x < 8; x++)
             for (int y = 0; y < 8; y++)
-                temp.setPiece(x,y,getPiece(x,y));
+                if (pieces[x][y] != null)
+                    temp.setPiece(x, y, pieces[x][y].copy());
         
         return temp;
     }
