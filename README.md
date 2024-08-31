@@ -1,2 +1,2 @@
-Chess with several different variants and local multiplayer.
-To play, simply download all the files and run Main.java :)
+Chess with several different variants, music, saving, and local multiplayer.
+To play, download all the files and run Main.java :)
