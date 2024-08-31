@@ -17,6 +17,7 @@ public class Board implements Serializable
 {
     private final Piece[][] pieces;
     private static final String[] pieceList = {"King","Queen","Rook","Rook","Knight","Knight","Bishop","Bishop"};
+    private static final AudioFilePlayer player = new AudioFilePlayer();
 
     public Board()
     {
@@ -302,15 +303,22 @@ public class Board implements Serializable
      * @param y1 the current y coord
      * @param x2 the x coord to move to
      * @param y2 the y coord to move to
+     * @param test if it is a test move(don't play sounds)
      */
-    public void movePiece(int x1, int y1, int x2, int y2)
+    public void movePiece(int x1, int y1, int x2, int y2, boolean test)
     {
         if (Main.atomic && pieces[x2][y2] != null) // Blow up all non-pawns in surrounding squares for atomic
         {
+            int ct = 0;
             for (int i = x2 - 1; i < x2 + 2; i++)
                 for (int j = y2 - 1; j < y2 + 2; j++)
-                    if (i < 8 && i > -1 && j < 8 && j > -1 && !(pieces[i][j] instanceof Pawn))
+                    if (i < 8 && i > -1 && j < 8 && j > -1 && !(pieces[i][j] instanceof Pawn) && pieces[i][j] != null)
+                    {
+                        ct++;
                         pieces[i][j] = null;
+                    }
+            if (ct > 2 && !test)
+                player.play("sounds\\bomb.wav");
         }
         else
             pieces[x2][y2] = pieces[x1][y1];  // move piece

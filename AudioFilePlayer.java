@@ -10,36 +10,46 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import static javax.sound.sampled.AudioSystem.getAudioInputStream;
 import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
 
+// TODO: find/create music for each variant
+
 public class AudioFilePlayer {
 
     private volatile boolean fadeOutRequested = false;
     private static final int FADE_OUT_DURATION_MS = 7000;
 
-    public void play(String filePath) {
-        final File file = new File(filePath);
+    public void play(String filePath) 
+    {
 
-        try (final AudioInputStream in = getAudioInputStream(file)) {
+        Thread playThread = new Thread(() -> {
 
-            final AudioFormat outFormat = getOutFormat(in.getFormat());
-            final Info info = new Info(SourceDataLine.class, outFormat);
+            final File file = new File(filePath);
 
-            try (final SourceDataLine line =
-                         (SourceDataLine) AudioSystem.getLine(info)) {
+            try (final AudioInputStream in = getAudioInputStream(file)) {
 
-                if (line != null) {
-                    line.open(outFormat);
-                    line.start();
-                    stream(getAudioInputStream(outFormat, in), line);
-                    line.drain();
-                    line.stop();
+                final AudioFormat outFormat = getOutFormat(in.getFormat());
+                final Info info = new Info(SourceDataLine.class, outFormat);
+
+                try (final SourceDataLine line =
+                            (SourceDataLine) AudioSystem.getLine(info)) {
+
+                    if (line != null) {
+                        line.open(outFormat);
+                        line.start();
+                        stream(getAudioInputStream(outFormat, in), line);
+                        line.drain();
+                        line.stop();
+                    }
                 }
-            }
 
-        } catch (UnsupportedAudioFileException
-                 | LineUnavailableException
-                 | IOException e) {
-            throw new IllegalStateException(e);
-        }
+            } catch (UnsupportedAudioFileException
+                    | LineUnavailableException
+                    | IOException e) {
+                throw new IllegalStateException(e);
+            }
+        });
+
+        playThread.start();
+        fadeOutRequested = false;
     }
 
     private AudioFormat getOutFormat(AudioFormat inFormat) {

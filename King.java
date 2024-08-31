@@ -102,7 +102,7 @@ public class King extends Piece
                 for (int m = 0; m < moves.get(0).size(); m++)  // Check if King can move out of check
                 {
                   Board temp = b.copy();
-                  temp.movePiece(getX(), getY(), moves.get(0).get(m), moves.get(1).get(m));
+                  temp.movePiece(getX(), getY(), moves.get(0).get(m), moves.get(1).get(m), true);
                   if (!check(temp))
                     return false;
                 }
@@ -118,7 +118,7 @@ public class King extends Piece
                       for (int m = 0; m < blocks.get(0).size(); m++)
                       {
                         Board temp = b.copy();
-                        temp.movePiece(team.getX(), team.getY(), blocks.get(0).get(m), blocks.get(1).get(m));
+                        temp.movePiece(team.getX(), team.getY(), blocks.get(0).get(m), blocks.get(1).get(m), true);
                         if (!check(temp))
                           return false;
                       }

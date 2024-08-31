@@ -50,10 +50,10 @@ public abstract class Piece implements Serializable
   //public abstract int[][] getPossibleMoves(Board b);
   public abstract ArrayList<ArrayList<Integer>> getPossibleMoves(Board b);
 
-  public boolean move(int xCoord, int yCoord, Board b)
+  public boolean move(int xCoord, int yCoord, Board b, boolean test)
   {
     Board temp = b.copy();
-    temp.movePiece(x, y, xCoord, yCoord);
+    temp.movePiece(x, y, xCoord, yCoord, true);
     if (temp.inCheck(Main.whiteTurn))  // Check to make sure moving the piece won't lead to check
       return false;
 
@@ -69,7 +69,7 @@ public abstract class Piece implements Serializable
 
     if (canMove)
     {
-      b.movePiece(x, y, xCoord, yCoord);
+      b.movePiece(x, y, xCoord, yCoord, (false || test));
       x = xCoord;
       y = yCoord;
       return true;
@@ -97,7 +97,7 @@ public abstract class Piece implements Serializable
       for (int m = 0; m < illegalMoves.get(0).size(); m++)
       {
         Board temp = b.copy();
-        temp.movePiece(x, y, illegalMoves.get(0).get(m), illegalMoves.get(1).get(m));
+        temp.movePiece(x, y, illegalMoves.get(0).get(m), illegalMoves.get(1).get(m), true);
         if (temp.inCheck(white))
         {
           legalMoves.get(0).add(illegalMoves.get(0).get(i));

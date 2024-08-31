@@ -94,9 +94,9 @@ public class Pawn extends Piece
   }
 
   @Override
-  public boolean move(int x, int y, Board b)
+  public boolean move(int x, int y, Board b, boolean test)
   {
-    boolean r = super.move(x,y,b);
+    boolean r = super.move(x,y,b, test);
     if (!r)
       return false;
       

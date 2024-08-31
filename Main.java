@@ -52,6 +52,7 @@ public class Main {
     public static Color[] emptyColors = {Color.BLACK, Color.BLACK};
     public static Color[] rainbow = {Color.RED, Color.BLUE};
     public static Color titleColor = Color.BLACK;
+    private static final AudioFilePlayer player = new AudioFilePlayer();
 
     public static void main(String[] args) throws IOException 
     {
@@ -63,11 +64,9 @@ public class Main {
         System.out.println(chess);
     }
 
-    private static void showTitleScreen() throws IOException 
+    private static void showTitleScreen() throws IOException  // TODO: make title screen beautiful
     {
-        final AudioFilePlayer player = new AudioFilePlayer();
-        Thread playMusic = new Thread(() -> player.play("sounds\\title.wav"));
-        playMusic.start();
+        player.play("sounds\\title.wav");
         
         startFrame = new JFrame("Chess");
         startFrame.setLayout(new GridBagLayout());
@@ -97,11 +96,11 @@ public class Main {
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; 
-        gbc.insets = new Insets(0, 0, 100, 0);
+        gbc.insets = new Insets(0, 0, 60, 0);
         gbc.gridy = 0;
         startFrame.add(title, gbc); 
         gbc.gridy = 1; 
-        gbc.insets = new Insets(0, 0, 50, 0);
+        gbc.insets = new Insets(0, 0, 90, 0);
         startFrame.add(start, gbc);
         startFrame.setVisible(true);
 
@@ -184,7 +183,7 @@ public class Main {
 
         JMenuItem credits = new JMenuItem("Credits");
         credits.addActionListener((ActionEvent e) -> {
-            JOptionPane.showMessageDialog(jFrame, "Created by Matt Johnson");
+            JOptionPane.showMessageDialog(jFrame, "Created by Matt Johnson\nMusic by Matt Johnson, Milt Jackson");
         });
 
         file.add(save);
@@ -331,6 +330,8 @@ public class Main {
         jFrame.add(hostButton);
         jFrame.add(joinButton);
         //jFrame.add(moves);    // ugly
+
+        startFrame.setVisible(false);
         jFrame.setVisible(true);
     }
 
@@ -350,15 +351,25 @@ public class Main {
             if (is960)
                 chess = new Board("960");
             else if (isCheckers)
+            {
                 chess = new Board("checkers");
+                player.play("sounds\\checkers.wav");
+            }
             else if (isPre)
                 chess = new Board("preChess");
             else if (isBad)
                 chess = new Board("bad");
             else if (isDerby)
+            {
                 chess = new Board("crossDerby");
+                player.play("sounds\\crossDerby.wav");
+            }
             else
+            {
                 chess = new Board();
+                if (atomic)
+                    player.play("sounds\\atomic.wav");
+            }
 
             selected = false;
             whiteTurn = true;
@@ -482,7 +493,7 @@ public class Main {
             }
             else if (selected)
             {
-                if (chess.getPiece(x,y).move(row,col,chess) && (!multiplayer || whiteTurn == isWhite))
+                if (chess.getPiece(x,y).move(row,col,chess, false) && (!multiplayer || whiteTurn == isWhite))
                 {
                     // System.out.println(chess.getPieceAbbr(row, col) + ((char) (row + 97)) + col);
                     // ((JTextArea) pastMoves).setText(((JTextArea) pastMoves).getText() + "\n" + chess.getPiece(row,col).getAbbr() + ((char) (row + 97)) + col);    // super ugly currently
@@ -571,7 +582,7 @@ public class Main {
                     {
                         Board temp = chess.copy();
                         System.out.println("Actual Game: \n" + chess);
-                        if (temp.getPiece(row, col).move( possibleMoves.get(0).get(i), possibleMoves.get(1).get(i), temp ))
+                        if (temp.getPiece(row, col).move( possibleMoves.get(0).get(i), possibleMoves.get(1).get(i), temp, true))
                             buttons[possibleMoves.get(0).get(i)][possibleMoves.get(1).get(i)].setBackground(movesColors[theme]);
                     }
                 }

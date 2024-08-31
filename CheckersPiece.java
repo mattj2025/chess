@@ -69,9 +69,9 @@ public class CheckersPiece extends Piece
         return moves;
     }
 
-    public boolean move(int x, int y, Board b)
+    public boolean move(int x, int y, Board b, boolean test)
     {
-        boolean r = super.move(x,y,b);
+        boolean r = super.move(x,y,b, test);
     
         if (y == lastRow)
             b.setPiece(x,y,new CheckersKingPiece(x,y,isWhite()));
