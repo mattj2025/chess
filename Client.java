@@ -23,6 +23,7 @@ public class Client implements ActionListener
             Main.isWhite = false;
 
             clientSocket = new Socket(InetAddress.getLocalHost(), port);
+            clientSocket.setSoTimeout(30000);
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             sendMessage("Connect");

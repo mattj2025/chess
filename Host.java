@@ -22,15 +22,8 @@ public class Host implements ActionListener
             Main.isHost = true;
             Main.isWhite = true;
 
-            // TODO - allow host to cancel joining bc app currently freezes
-            
-            //Thread cancelThread = new Thread(() -> {
-                //Timer cancel = new Timer(5000, new CancelListener());
-                //cancel.start();
-            //});
-            //cancelThread.start();
-
             serverSocket = new ServerSocket(port);
+            serverSocket.setSoTimeout(30000);
             clientSocket = serverSocket.accept();
 
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -66,8 +59,8 @@ public class Host implements ActionListener
             loopThread.start();
 
         } catch(IOException e1) {
-            System.out.println("Could not find Client");
-            JOptionPane.showMessageDialog(Main.jFrame, "Could not find client");
+            System.out.println("Failed to connect");
+            JOptionPane.showMessageDialog(Main.jFrame, "Failed to connect");
         }
     }
 

@@ -305,7 +305,6 @@ public class Board implements Serializable
      */
     public void movePiece(int x1, int y1, int x2, int y2)
     {
-        System.out.println(Main.atomic);
         if (Main.atomic && pieces[x2][y2] != null) // Blow up all non-pawns in surrounding squares for atomic
         {
             for (int i = x2 - 1; i < x2 + 2; i++)
@@ -317,7 +316,6 @@ public class Board implements Serializable
             pieces[x2][y2] = pieces[x1][y1];  // move piece
 
         pieces[x1][y1] = null;
-        System.out.println(toString());
     }
 
     @Override
@@ -326,14 +324,11 @@ public class Board implements Serializable
         String s = "";
         for (int y = 0; y < 8; y++)
         {
-        for (int x = 0; x < 8; x++)
-        {
-            if (pieces[x][y] != null)
+            for (int x = 0; x < 8; x++)
+            {
                 s += getPieceAbbr(x,y);
-            else
-                s += " ";
-        }
-        s += "\n";
+            }
+            s += "\n";
         }
         return s;
     }
@@ -345,12 +340,14 @@ public class Board implements Serializable
 
     public Board copy() 
     {
+        System.out.println("BOARD:\n" + toString());
         Board temp = new Board();
         for (int x = 0; x < 8; x++)
             for (int y = 0; y < 8; y++)
                 if (pieces[x][y] != null)
                     temp.setPiece(x, y, pieces[x][y].copy());
         
+        System.out.println("COPY:\n" + temp);
         return temp;
     }
 }

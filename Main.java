@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 public class Main {
+    private static final boolean skipTitle = false;
     private static final int BUTTON_SIZE = 80;
     public static Board chess;
     public static Main mainInstance = new Main();
     public static JButton[][] buttons;
     public static JFrame jFrame;
+    public static JFrame startFrame;
+    public static boolean atTitleScreen = true;
     public static boolean whiteTurn = true;
     public static boolean selected = false;
     public static boolean moveDuck = false;
@@ -47,14 +50,86 @@ public class Main {
     public static Color[] selectColors = {Color.RED, Color.RED};
     public static Color[] textColors = {Color.DARK_GRAY, Color.LIGHT_GRAY};
     public static Color[] emptyColors = {Color.BLACK, Color.BLACK};
+    public static Color[] rainbow = {Color.RED, Color.BLUE};
+    public static Color titleColor = Color.BLACK;
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException 
+    {
         chess = new Board();
-        createAndShowGUI();
+        if (!skipTitle)
+            showTitleScreen();
+        else
+            createAndShowGUI();
         System.out.println(chess);
     }
 
-    private static void createAndShowGUI() throws IOException {
+    private static void showTitleScreen() throws IOException 
+    {
+        final AudioFilePlayer player = new AudioFilePlayer();
+        Thread playMusic = new Thread(() -> player.play("sounds\\title.wav"));
+        playMusic.start();
+        
+        startFrame = new JFrame("Chess");
+        startFrame.setLayout(new GridBagLayout());
+        startFrame.setSize(700, 840);
+        startFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        startFrame.getContentPane().setBackground(background[theme]);
+
+        JLabel title = new JLabel("Chess");
+        title.setFont(new Font("Arial", Font.BOLD, 82));
+        title.setForeground(titleColor);
+        
+        JButton start = new JButton("Play");
+        start.setSize(110, 70);
+        start.setFont(new Font("Arial", Font.BOLD, 60));
+        start.setForeground(Color.WHITE);
+        start.setBackground(rainbow[0]);
+        start.setFocusable(false);
+
+        start.addActionListener(e -> {
+            try {
+                player.requestFadeOut();
+                createAndShowGUI();
+            } catch (IOException ex) {
+                System.out.println("Failed to display GUI");
+            }
+        });
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0; 
+        gbc.insets = new Insets(0, 0, 100, 0);
+        gbc.gridy = 0;
+        startFrame.add(title, gbc); 
+        gbc.gridy = 1; 
+        gbc.insets = new Insets(0, 0, 50, 0);
+        startFrame.add(start, gbc);
+        startFrame.setVisible(true);
+
+        Thread rainbowButton = new Thread(() -> {
+            int i = 0;
+            while(atTitleScreen)
+            {
+                if (i == rainbow.length)
+                    i = 0;
+
+                start.setBackground(rainbow[i]);
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e1) {
+                    System.out.println("Failed to sleep");
+                }
+                i++;
+            }
+        });
+        rainbowButton.start();
+    }
+
+
+
+    private static void createAndShowGUI() throws IOException 
+    {
+        atTitleScreen = false;
+
         jFrame = new JFrame("Chess");
         jFrame.setLayout(new FlowLayout());
         jFrame.setSize(700, 840);
@@ -210,13 +285,18 @@ public class Main {
             {
                 JButton button = new JButton();
                 button.setPreferredSize(new Dimension(BUTTON_SIZE, BUTTON_SIZE));
+
                 if (chess.getPiece(x,y) != null && !blindfold)
                     button.setIcon(chess.getPiece(x,y).getIcon());
+
                 button.addActionListener(new ButtonClickListener(x, y, chess));
+
                 if ((y % 2 == 0 && x % 2 == 0) || (x % 2 == 1 && y % 2 == 1))
                     button.setBackground(tileA[theme]);
                 else
                     button.setBackground(tileB[theme]);
+
+                button.setFocusable(false);
                 panel.add(button);
                 buttons[x][y] = button;
             }
@@ -487,10 +567,11 @@ public class Main {
                 }
                 else if (!multiplayer || (isWhite == whiteTurn))
                 {
-                    for (int i = possibleMoves.get(0).size() - 1; i > -1; i--)
+                    for (int i = 0; i < possibleMoves.get(0).size(); i++)
                     {
                         Board temp = chess.copy();
-                        if (temp.getPiece(row,col).move(possibleMoves.get(0).get(i), possibleMoves.get(1).get(i), temp))
+                        System.out.println("Actual Game: \n" + chess);
+                        if (temp.getPiece(row, col).move( possibleMoves.get(0).get(i), possibleMoves.get(1).get(i), temp ))
                             buttons[possibleMoves.get(0).get(i)][possibleMoves.get(1).get(i)].setBackground(movesColors[theme]);
                     }
                 }

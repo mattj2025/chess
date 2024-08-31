@@ -7,8 +7,8 @@ public class Pawn extends Piece
 
     public Pawn(int x, int y, boolean white)
     {
-    super(x,y,white,"P","images\\pawn");
-    firstMove = true;
+      super(x,y,white,"P","images\\pawn");
+      firstMove = true;
     }
 
     // TODO - add en passant
