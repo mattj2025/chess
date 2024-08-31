@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 public class Main {
-    private static final boolean skipTitle = false;
+    private static final boolean SKIP_TITLE = false;
     private static final int BUTTON_SIZE = 80;
     public static Board chess;
     public static Main mainInstance = new Main();
@@ -13,6 +13,7 @@ public class Main {
     public static JFrame jFrame;
     public static JFrame startFrame;
     public static boolean atTitleScreen = true;
+    public static boolean muted = false;
     public static boolean whiteTurn = true;
     public static boolean selected = false;
     public static boolean moveDuck = false;
@@ -57,7 +58,7 @@ public class Main {
     public static void main(String[] args) throws IOException 
     {
         chess = new Board();
-        if (!skipTitle)
+        if (!SKIP_TITLE)
             showTitleScreen();
         else
             createAndShowGUI();
@@ -152,7 +153,13 @@ public class Main {
         save.addActionListener(new Save());
         JMenuItem load = new JMenuItem("Load");
         load.addActionListener(new Load());
+        
         JMenu colorPicker = new JMenu("Choose Color Theme");
+
+        JMenuItem muteAudio = new JMenuItem("Mute/Unmute Audio");
+        muteAudio.addActionListener((ActionEvent e) -> {
+            muted = !muted;
+        });
         
         JMenuItem original = new JMenuItem("Original");
         original.addActionListener((ActionEvent e) -> {
@@ -189,6 +196,7 @@ public class Main {
         file.add(save);
         file.add(load);
         edit.add(colorPicker);
+        edit.add(muteAudio);
         help.add(tutorial);
         help.add(credits);
 
@@ -440,6 +448,8 @@ public class Main {
         public void actionPerformed(ActionEvent e) 
         {
             System.out.println("Button clicked at row " + row + ", column " + col);
+            if (!selected)
+                player.play("sounds\\click.wav");
 
             if (isPre && placeInt < 16 && ((whiteTurn && col == 7) || (!whiteTurn && col == 0)))
             {
@@ -495,6 +505,8 @@ public class Main {
             {
                 if (chess.getPiece(x,y).move(row,col,chess, false) && (!multiplayer || whiteTurn == isWhite))
                 {
+                    player.play("sounds\\move.wav");
+
                     // System.out.println(chess.getPieceAbbr(row, col) + ((char) (row + 97)) + col);
                     // ((JTextArea) pastMoves).setText(((JTextArea) pastMoves).getText() + "\n" + chess.getPiece(row,col).getAbbr() + ((char) (row + 97)) + col);    // super ugly currently
                     

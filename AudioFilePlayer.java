@@ -19,7 +19,9 @@ public class AudioFilePlayer {
 
     public void play(String filePath) 
     {
-
+        if (Main.muted)
+            return;
+            
         Thread playThread = new Thread(() -> {
 
             final File file = new File(filePath);
