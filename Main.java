@@ -51,7 +51,6 @@ public class Main {
     public static Color[] selectColors = {Color.RED, Color.RED};
     public static Color[] textColors = {Color.DARK_GRAY, Color.LIGHT_GRAY};
     public static Color[] emptyColors = {Color.BLACK, Color.BLACK};
-    public static Color[] rainbow = {Color.RED, Color.BLUE};
     public static Color titleColor = Color.BLACK;
     private static final AudioFilePlayer player = new AudioFilePlayer();
 
@@ -66,9 +65,7 @@ public class Main {
     }
 
     private static void showTitleScreen() throws IOException  // TODO: make title screen beautiful
-    {
-        player.play("sounds\\title.wav");
-        
+    {        
         startFrame = new JFrame("Chess");
         startFrame.setLayout(new GridBagLayout());
         startFrame.setSize(700, 840);
@@ -83,7 +80,7 @@ public class Main {
         start.setSize(110, 70);
         start.setFont(new Font("Arial", Font.BOLD, 60));
         start.setForeground(Color.WHITE);
-        start.setBackground(rainbow[0]);
+        start.setBackground(Color.RED);
         start.setFocusable(false);
 
         start.addActionListener(e -> {
@@ -94,6 +91,8 @@ public class Main {
                 System.out.println("Failed to display GUI");
             }
         });
+
+        player.play("sounds\\title.wav");
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; 
@@ -107,18 +106,42 @@ public class Main {
 
         Thread rainbowButton = new Thread(() -> {
             int i = 0;
+            int r = 255;
+            int g = 0;
+            int b = 0;
+
             while(atTitleScreen)
             {
-                if (i == rainbow.length)
-                    i = 0;
+                start.setBackground(new Color(r,g,b));
 
-                start.setBackground(rainbow[i]);
+                if (i < 51)
+                    g += 5;
+                else if (i < 102)
+                    r -= 5;
+                else if (i < 153)
+                    b += 5;
+                else if (i < 204)
+                    g -= 5;
+                else if (i < 255)
+                    r += 5;
+                else
+                    b -= 5;
+
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(5);
                 } catch (InterruptedException e1) {
                     System.out.println("Failed to sleep");
                 }
+
                 i++;
+                if (i == 255)
+                {
+                    i = 0;
+                    r = 255;
+                    g = 0;
+                    b = 0;
+                }
+
             }
         });
         rainbowButton.start();
@@ -258,6 +281,10 @@ public class Main {
         blindfoldBox.setSelected(blindfold);
         blindfoldBox.addItemListener((ItemEvent e) -> {
             blindfold = !blindfold;
+            if (blindfold)
+                player.play("sounds\\disappear.wav");
+            else
+                player.play("sounds\\appear.wav");
             reloadBoard(buttons,chess);
         });
 
@@ -360,8 +387,9 @@ public class Main {
                 chess = new Board("960");
             else if (isCheckers)
             {
-                chess = new Board("checkers");
+                chess = new Board("Checkers");
                 player.play("sounds\\checkers.wav");
+                System.out.println(chess);
             }
             else if (isPre)
                 chess = new Board("preChess");
@@ -377,6 +405,8 @@ public class Main {
                 chess = new Board();
                 if (atomic)
                     player.play("sounds\\atomic.wav");
+                if (duck)
+                    player.play("sounds\\duck.wav");
             }
 
             selected = false;
@@ -497,6 +527,8 @@ public class Main {
 
                     moveDuck = false;
                     sendBoard = true;
+
+                    player.play("sounds\\quack.wav");
                 }
                 else
                     System.out.println("Cannot move");

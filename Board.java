@@ -138,6 +138,7 @@ public class Board implements Serializable
                             pieces[i][j] = new CheckersPiece(i,j,true);
                     }
                 }
+                System.out.println("asdasdf: \n" + toString());
             }
             case "preChess" -> {
                 for (int i = 0; i < 8; i++)
@@ -213,7 +214,7 @@ public class Board implements Serializable
                     pieces[i][6] = new Pawn(i,6,true);
                 }
                 pieces[7][0] = new King(7,0,false);
-                pieces[0][7] = new Knight(0,7,true);
+                pieces[0][7] = new King(0,7,true);
                 
                 
                 pieces[0][2] = new Pawn(0,2,false);

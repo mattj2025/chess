@@ -2,7 +2,7 @@ import java.util.ArrayList;
 
 public class CheckersPiece extends Piece
 {
-    private int lastRow;
+    private final int lastRow;
 
     public CheckersPiece(int x, int y, boolean white)
     {
@@ -14,6 +14,7 @@ public class CheckersPiece extends Piece
             lastRow = 7;
     }
 
+    @Override
     public ArrayList<ArrayList<Integer>> getPossibleMoves(Board b)
     {
         ArrayList<ArrayList<Integer>> moves = new ArrayList<>();
@@ -69,6 +70,7 @@ public class CheckersPiece extends Piece
         return moves;
     }
 
+    @Override
     public boolean move(int x, int y, Board b, boolean test)
     {
         boolean r = super.move(x,y,b, test);
