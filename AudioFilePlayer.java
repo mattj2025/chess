@@ -10,12 +10,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import static javax.sound.sampled.AudioSystem.getAudioInputStream;
 import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;
 
-// TODO: find/create music for each variant
-
 public class AudioFilePlayer {
 
     private volatile boolean fadeOutRequested = false;
     private static final int FADE_OUT_DURATION_MS = 7000;
+    private boolean cancel = false;
 
     public void play(String filePath) 
     {
@@ -79,13 +78,19 @@ public class AudioFilePlayer {
                 int bytesPerFrame = line.getFormat().getFrameSize();
                 for (int i = 0; i < n; i += bytesPerFrame) {
                     long currentFrame = totalFramesRead + (i / bytesPerFrame);
-                    double fadeFactor = 1.0;
+                    double fadeFactor;
                     if (currentFrame >= fadeOutStartFrame) {
                         fadeFactor = 1.0 - (double)(currentFrame - fadeOutStartFrame) / fadeOutDurationFrames;
                         fadeFactor = Math.max(0.0, fadeFactor);
                         applyFade(buffer, i, bytesPerFrame, fadeFactor);
                     }
                 }
+            }
+
+            if (cancel)
+            {
+                cancel = false;
+                return;
             }
 
             line.write(buffer, 0, n);
@@ -104,5 +109,9 @@ public class AudioFilePlayer {
 
     public void requestFadeOut() {
         fadeOutRequested = true;
+    }
+
+    public void cancel() {
+        cancel = true;
     }
 }

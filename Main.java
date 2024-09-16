@@ -12,6 +12,8 @@ public class Main {
     public static JButton[][] buttons;
     public static JFrame jFrame;
     public static JFrame startFrame;
+    public static JLabel blackTime;
+    public static JLabel whiteTime;
     public static boolean atTitleScreen = true;
     public static boolean muted = false;
     public static boolean whiteTurn = true;
@@ -42,11 +44,12 @@ public class Main {
     public static Component pastMoves;
     public static String piece;
     public static long endTime;
+    public static int seconds;
     public static int x = 0;
     public static int y = 0;
     public static int placeInt = 0;
     public static int theme = 0;
-    public static int timerLength = 60000;
+    public static int timerLength = 600000;
     public static Color[] background = {Color.WHITE, Color.DARK_GRAY};
     public static Color[] tileA = {Color.WHITE, Color.LIGHT_GRAY};
     public static Color[] tileB = {Color.LIGHT_GRAY, Color.DARK_GRAY};
@@ -61,8 +64,8 @@ public class Main {
         JOptionPane.showMessageDialog(null, "Times out. Game Over");
         stopAllTimers();
     };
-    public static final ChessTimer whiteTimer = new ChessTimer(10000, timeout);
-    public static final ChessTimer blackTimer = new ChessTimer(10000, timeout);
+    public static final ChessTimer whiteTimer = new ChessTimer(30000, timeout);
+    public static final ChessTimer blackTimer = new ChessTimer(30000, timeout);
 
     public static void main(String[] args) throws IOException 
     {
@@ -312,6 +315,7 @@ public class Main {
             isTimed = !isTimed;
             if (isTimed)
             {
+                player.play("sounds\\timerTick.wav");
                 if (whiteTurn)
                     whiteTimer.start();
                 else
@@ -383,6 +387,9 @@ public class Main {
         reloadButton.setBackground(background[theme]);
         reloadButton.addActionListener(new Reload(buttons,chess));
         reloadB = reloadButton;
+
+        blackTime = new JLabel("10:00");
+        whiteTime = new JLabel("10:00");
     
         jFrame.setJMenuBar(menuBar);
         jFrame.add(title);
@@ -402,6 +409,8 @@ public class Main {
         jFrame.add(reloadButton);
         jFrame.add(hostButton);
         jFrame.add(joinButton);
+        jFrame.add(blackTime);
+        jFrame.add(whiteTime);
         //jFrame.add(moves);    // ugly
 
         startFrame.setVisible(false);
@@ -460,6 +469,9 @@ public class Main {
 
             if (isPre)
                 JOptionPane.showMessageDialog(jFrame, "Placing Rooks");
+
+            whiteTimer.reset();
+            blackTimer.reset();
         } 
     }
 
@@ -765,7 +777,6 @@ public class Main {
             blackTimer.stop();
             whiteTimer.start();
         }
-        System.out.println("White: " + whiteTimer.getDelay() + "\nBlack: " + blackTimer.getDelay());
     }
 
     public static void stopAllTimers()
@@ -775,14 +786,43 @@ public class Main {
     }
 
     public static Thread countdown = new Thread(() -> {
+        seconds = 0;
+        boolean playingTimer = false;
         while(isTimed)
-        {
+        {            
             if (whiteTurn)
+            {
                 endTime = whiteTimer.getEndTime();
+                seconds = (int) ((endTime - new Date().getTime()) / 1000);
+                if (Math.abs(seconds) < 3601)
+                    whiteTime.setText(String.format("%02d:%02d", seconds / 60, seconds % 60));
+            }
             else
+            {
                 endTime = blackTimer.getEndTime();
-                
-            System.out.println((endTime - new Date().getTime()) / 1000);
+                seconds = (int) ((endTime - new Date().getTime()) / 1000);
+                if (Math.abs(seconds) < 3601)
+                    blackTime.setText(String.format("%02d:%02d", seconds / 60, seconds % 60));
+            }
+
+            if (seconds == 30 || seconds == 15)
+            {
+                player.play("sounds\\chirp.wav");
+            }
+            else if (seconds <= 6 && !playingTimer)
+            {
+                player.play("sounds\\timerBomb.wav");
+                playingTimer = true;
+            }
+            else if (seconds == 0)
+                playingTimer = false;
+
+            if (playingTimer && seconds > 6)
+            {
+                player.cancel();
+                playingTimer = false;
+            }
+
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e1) {

@@ -5,9 +5,10 @@ import javax.swing.*;
 public class ChessTimer extends java.util.Timer
 {
     private long delay;
+    private long initialDelay;
     private final ActionListener listener;
     private final Object queueLock = new Object();
-    Task task;
+    private Task task;
     private long queue;
     private long endTime;
 
@@ -15,7 +16,7 @@ public class ChessTimer extends java.util.Timer
     {
         super();
 
-        delay = d;
+        initialDelay = delay = d;
         listener = l;
     }
     
@@ -23,7 +24,7 @@ public class ChessTimer extends java.util.Timer
     {
         if (d < 0) 
             throw new IllegalArgumentException("Invalid delay: " + d);
-        delay = d;
+        initialDelay = delay = d;
     }
 
     public long getDelay()
@@ -62,6 +63,12 @@ public class ChessTimer extends java.util.Timer
             t.cancel();
             task = null;
         }
+    }
+
+    public void reset()
+    {
+        stop();
+        delay = initialDelay;
     }
 
     void queueEvent()
