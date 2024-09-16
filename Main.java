@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import javax.swing.*;
 
 public class Main {
@@ -31,6 +31,7 @@ public class Main {
     public static boolean isBad = false;
     public static boolean isDerby = false;
     public static boolean sendBoard = false;
+    public static boolean isTimed = false;
     public static Host host = new Host();
     public static Client client = new Client();
     public static Component joinB;
@@ -40,10 +41,12 @@ public class Main {
     public static Component reloadB;
     public static Component pastMoves;
     public static String piece;
+    public static long endTime;
     public static int x = 0;
     public static int y = 0;
     public static int placeInt = 0;
     public static int theme = 0;
+    public static int timerLength = 60000;
     public static Color[] background = {Color.WHITE, Color.DARK_GRAY};
     public static Color[] tileA = {Color.WHITE, Color.LIGHT_GRAY};
     public static Color[] tileB = {Color.LIGHT_GRAY, Color.DARK_GRAY};
@@ -53,6 +56,13 @@ public class Main {
     public static Color[] emptyColors = {Color.BLACK, Color.BLACK};
     public static Color titleColor = Color.BLACK;
     private static final AudioFilePlayer player = new AudioFilePlayer();
+    public static final ActionListener timeout = (ActionEvent e) -> {
+        System.out.println("Over on time");
+        JOptionPane.showMessageDialog(null, "Times out. Game Over");
+        stopAllTimers();
+    };
+    public static final ChessTimer whiteTimer = new ChessTimer(10000, timeout);
+    public static final ChessTimer blackTimer = new ChessTimer(10000, timeout);
 
     public static void main(String[] args) throws IOException 
     {
@@ -113,7 +123,7 @@ public class Main {
             while(atTitleScreen)
             {
                 start.setBackground(new Color(r,g,b));
-
+                
                 if (i < 51)
                     g += 5;
                 else if (i < 102)
@@ -183,6 +193,13 @@ public class Main {
         muteAudio.addActionListener((ActionEvent e) -> {
             muted = !muted;
         });
+
+        JMenuItem changeTime = new JMenuItem("Change Timer Length");
+        changeTime.addActionListener((ActionEvent e) -> {
+            timerLength = Integer.parseInt(JOptionPane.showInputDialog("How long in seconds? "));
+            whiteTimer.setDelay(timerLength);
+            blackTimer.setDelay(timerLength);
+        });
         
         JMenuItem original = new JMenuItem("Original");
         original.addActionListener((ActionEvent e) -> {
@@ -213,13 +230,14 @@ public class Main {
 
         JMenuItem credits = new JMenuItem("Credits");
         credits.addActionListener((ActionEvent e) -> {
-            JOptionPane.showMessageDialog(jFrame, "Created by Matt Johnson\nMusic by Matt Johnson, Milt Jackson");
+            JOptionPane.showMessageDialog(jFrame, "Created by Matt Johnson\nMusic by Matt Johnson, Milt Jackson, Stephen Melillo, Bryant Oden");
         });
 
         file.add(save);
         file.add(load);
         edit.add(colorPicker);
         edit.add(muteAudio);
+        edit.add(changeTime);
         help.add(tutorial);
         help.add(credits);
 
@@ -286,6 +304,25 @@ public class Main {
             else
                 player.play("sounds\\appear.wav");
             reloadBoard(buttons,chess);
+        });
+
+        JCheckBox isTimedBox = new JCheckBox("Timer");
+        isTimedBox.setSelected(isTimed);
+        isTimedBox.addItemListener((ItemEvent e) -> {
+            isTimed = !isTimed;
+            if (isTimed)
+            {
+                if (whiteTurn)
+                    whiteTimer.start();
+                else
+                    blackTimer.start();
+                countdown.start();
+            }
+            else
+            {
+                whiteTimer.stop();
+                blackTimer.stop();
+            }
         });
 
         JButton hostButton = new JButton("Host");
@@ -359,6 +396,7 @@ public class Main {
         jFrame.add(isPreBox);
         jFrame.add(isBadBox);
         jFrame.add(isDerbyBox);
+        jFrame.add(isTimedBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
         jFrame.add(reloadButton);
@@ -639,18 +677,23 @@ public class Main {
                 y = col;
             }
 
-            if (multiplayer && sendBoard)
-            {
-                try
-                {
-                    if (isHost)
-                        host.sendBoard(chess);
-                    else
-                        client.sendBoard(chess);
-                } catch (IOException e1) {
-                    System.out.println("Failed to send board");
-                }
 
+            if (sendBoard)
+            {
+                if (isTimed)
+                    swapTimers();
+                if (multiplayer)
+                {
+                    try
+                    {
+                        if (isHost)
+                            host.sendBoard(chess);
+                        else
+                            client.sendBoard(chess);
+                    } catch (IOException e1) {
+                        System.out.println("Failed to send board");
+                    }
+                }
                 sendBoard = false;
             }
         }
@@ -709,4 +752,42 @@ public class Main {
                         buttons[i][j].setIcon(null);
 
     }
+
+    public static void swapTimers()
+    {
+        if (whiteTimer.isRunning())
+        {
+            whiteTimer.stop();
+            blackTimer.start();
+        }
+        else
+        {
+            blackTimer.stop();
+            whiteTimer.start();
+        }
+        System.out.println("White: " + whiteTimer.getDelay() + "\nBlack: " + blackTimer.getDelay());
+    }
+
+    public static void stopAllTimers()
+    {
+        whiteTimer.stop();
+        blackTimer.stop();
+    }
+
+    public static Thread countdown = new Thread(() -> {
+        while(isTimed)
+        {
+            if (whiteTurn)
+                endTime = whiteTimer.getEndTime();
+            else
+                endTime = blackTimer.getEndTime();
+                
+            System.out.println((endTime - new Date().getTime()) / 1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e1) {
+                System.out.println("Failed to sleep");
+            }
+        }
+    });
 }

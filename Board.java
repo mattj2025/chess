@@ -138,7 +138,6 @@ public class Board implements Serializable
                             pieces[i][j] = new CheckersPiece(i,j,true);
                     }
                 }
-                System.out.println("asdasdf: \n" + toString());
             }
             case "preChess" -> {
                 for (int i = 0; i < 8; i++)

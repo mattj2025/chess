@@ -21,7 +21,7 @@ public class AudioFilePlayer {
     {
         if (Main.muted)
             return;
-            
+
         Thread playThread = new Thread(() -> {
 
             final File file = new File(filePath);
