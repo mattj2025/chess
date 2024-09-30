@@ -15,6 +15,8 @@ public class Game implements Serializable
     private static boolean blindfold;
     private static boolean multiplayer;
     private static boolean isWhite;
+    private static ChessTimer whiteTimer;
+    private static ChessTimer blackTimer;
 
     public Game()
     {
@@ -31,6 +33,8 @@ public class Game implements Serializable
         blindfold = Main.blindfold;
         multiplayer = Main.multiplayer;
         isWhite = Main.isWhite;
+        whiteTimer = Main.whiteTimer;
+        blackTimer = Main.blackTimer;
     }
 
     public void loadGame()
@@ -48,6 +52,8 @@ public class Game implements Serializable
         Main.blindfold = blindfold;
         Main.multiplayer = multiplayer;
         Main.isWhite = isWhite;
+        Main.whiteTimer = whiteTimer;
+        Main.blackTimer = blackTimer;
         Main.reloadBoard(Main.buttons, chess);
     }
 

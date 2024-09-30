@@ -71,10 +71,7 @@ public class King extends Piece
 
           for (int c = 0; c < otherMoves.get(0).size(); c++)
             if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY())
-            {
-              System.out.println("In Check");
               return true;
-            }
         }
       }
     return false;
@@ -83,20 +80,20 @@ public class King extends Piece
   public boolean checkmate(Board b)
   {
     ArrayList<ArrayList<Integer>> otherMoves;
-
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)  // check every piece on board
       for (int j = 0; j < 8; j++)
       {
         Piece other = b.getPiece(j,i);
-        if (other != null && other.isWhite() != isWhite() && !(other instanceof King))
+        if (other != null && other.isWhite() != isWhite() && !(other instanceof King))  // if the piece is a different color and not king
         {
-          if (other instanceof Pawn pawn)
+          if (other instanceof Pawn pawn)   // get moves
             otherMoves = pawn.getAttacks(b);
           else
             otherMoves = other.getPossibleMoves(b);
-          for (int c = 0; c < otherMoves.get(0).size(); c++)
+
+          for (int c = 0; c < otherMoves.get(0).size(); c++)  // loop through the moves
           {
-            if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY())
+            if (otherMoves.get(0).get(c) == getX() && otherMoves.get(1).get(c) == getY()) // check if the move attacks the king
               {
                 ArrayList<ArrayList<Integer>> moves = getPossibleMoves(b);
                 for (int m = 0; m < moves.get(0).size(); m++)  // Check if King can move out of check
@@ -107,7 +104,7 @@ public class King extends Piece
                     return false;
                 }
 
-                // Check every piece on team to see if it can block
+                // Check every piece on same team to see if it can block
                 for (int g = 0; g < 8; g++)
                   for (int h = 0; h < 8; h++)
                   {

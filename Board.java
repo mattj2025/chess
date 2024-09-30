@@ -276,7 +276,7 @@ public class Board implements Serializable
             for (int y = 0; y < 8; y++)
             {
                 Piece onBoard = pieces[x][y];
-                if (onBoard != null && onBoard instanceof King)
+                if (onBoard != null && onBoard instanceof King && onBoard.isWhite() == white)
                     return ((King) onBoard).check(this);
             }
         return false;
@@ -292,9 +292,21 @@ public class Board implements Serializable
             {
                 Piece onBoard = pieces[x][y];
                 if (onBoard != null && onBoard instanceof King)
-                        return ((King) onBoard).checkmate(this);
+                    return ((King) onBoard).checkmate(this);
             }
         return false;
+    }
+
+    public boolean bothKingsInPlay()
+    {
+        int ct = 0;
+
+        for (int x = 0; x < 8; x++)
+            for (int y = 0; y < 8; y++)
+                if (pieces[x][y] != null && pieces[x][y] instanceof King)
+                    ct++;
+                
+        return ct == 2;
     }
 
     /**
@@ -319,11 +331,16 @@ public class Board implements Serializable
                     }
             if (ct > 2 && !test)
                 player.play("sounds\\bomb.wav");
+
+            pieces[x2][y2] = null;
         }
         else
             pieces[x2][y2] = pieces[x1][y1];  // move piece
 
         pieces[x1][y1] = null;
+
+        if (!test)
+            System.out.println(String.format("%s moved from (%d, %d) to (%d, %d)\nBoard:\n%s", pieces[x2][y2],x1,y1,x2,y2,toString()));
     }
 
     @Override
@@ -348,14 +365,12 @@ public class Board implements Serializable
 
     public Board copy() 
     {
-        System.out.println("BOARD:\n" + toString());
-        Board temp = new Board();
+        Board temp = new Board("");
         for (int x = 0; x < 8; x++)
             for (int y = 0; y < 8; y++)
                 if (pieces[x][y] != null)
                     temp.setPiece(x, y, pieces[x][y].copy());
-        
-        System.out.println("COPY:\n" + temp);
+
         return temp;
     }
 }

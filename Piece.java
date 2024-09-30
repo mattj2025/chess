@@ -109,5 +109,17 @@ public abstract class Piece implements Serializable
     return legalMoves;
   }
 
+  @Override
+  public String toString()
+  {
+    String colorStr;
+    if (white)
+      colorStr = "White";
+    else
+      colorStr = "Black";
+
+    return String.format("%s %s at (%d, %d)", colorStr, getClass().getName(), x, y);
+  }
+
   public abstract Piece copy();
 }
