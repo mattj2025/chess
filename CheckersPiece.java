@@ -86,4 +86,18 @@ public class CheckersPiece extends Piece
   {
     return new CheckersPiece(getX(), getY(), isWhite());
   }
+
+    @Override
+    public int getPieceCode()
+    {
+        if (isWhite())
+            return 3;
+        return -3;
+    }
+    
+    @Override
+    public int getScore()
+    {
+  	  return 1;
+    }
 }

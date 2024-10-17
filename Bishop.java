@@ -118,4 +118,18 @@ public class Bishop extends Piece
   {
     return new Bishop(getX(), getY(), isWhite());
   }
+
+  @Override
+  public int getPieceCode()
+  {
+    if (isWhite())
+      return 1;
+    return -1;
+  }
+  
+  @Override
+  public int getScore()
+  {
+	  return 3;
+  }
 }

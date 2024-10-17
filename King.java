@@ -133,4 +133,18 @@ public class King extends Piece
   {
     return new King(getX(), getY(), isWhite());
   }
+
+  @Override
+    public int getPieceCode()
+    {
+        if (isWhite())
+            return 6;
+        return -6;
+    }
+  
+  @Override
+  public int getScore()
+  {
+	  return 10;
+  }
 }

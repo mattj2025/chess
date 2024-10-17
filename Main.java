@@ -35,6 +35,7 @@ public class Main {
     public static boolean isDerby = false;
     public static boolean sendBoard = false;
     public static boolean isTimed = false;
+    public static boolean isMinimax = false;
     public static Host host = new Host();
     public static Client client = new Client();
     public static Component joinB;
@@ -309,6 +310,12 @@ public class Main {
                 player.play("sounds\\appear.wav");
             reloadBoard(buttons,chess);
         });
+        
+        JCheckBox isMinimaxBox = new JCheckBox("Minimax Bot");
+        isMinimaxBox.setSelected(isMinimax);
+        isMinimaxBox.addItemListener((ItemEvent e) -> {
+        	isMinimax = !isMinimax;
+        });
 
         JCheckBox isTimedBox = new JCheckBox("Timer");
         isTimedBox.setSelected(isTimed);
@@ -405,6 +412,7 @@ public class Main {
         jFrame.add(isBadBox);
         jFrame.add(isDerbyBox);
         jFrame.add(isTimedBox);
+        jFrame.add(isMinimaxBox);
         jFrame.add(panel);
         jFrame.add(resetButton);
         jFrame.add(reloadButton);
@@ -602,7 +610,8 @@ public class Main {
                         if (chess.getPiece(row,col) != null && !blindfold)
                             buttons[row][col].setIcon(chess.getPiece(row,col).getIcon());
 
-                        whiteTurn = !whiteTurn;
+                        if (!isMinimax)
+                        	whiteTurn = !whiteTurn;
 
                         if (duck)
                         {
@@ -662,7 +671,6 @@ public class Main {
                         for (int i = 0; i < possibleMoves.get(0).size(); i++)
                         {
                             Board temp = chess.copy();
-                            System.out.println("Actual Game: \n" + chess);
                             if (temp.getPiece(row, col).move( possibleMoves.get(0).get(i), possibleMoves.get(1).get(i), temp, true))
                                 buttons[possibleMoves.get(0).get(i)][possibleMoves.get(1).get(i)].setBackground(movesColors[theme]);
                         }
@@ -692,6 +700,12 @@ public class Main {
                         } catch (IOException e1) {
                             System.out.println("Failed to send board");
                         }
+                    }
+                    if (isMinimax)
+                    {
+                    	int[] m = Computer.getMinimaxMove(chess, isWhite, 5);
+                    	chess.movePiece(m[0], m[1], m[2], m[3], false);
+                    	reloadBoard(buttons, chess);
                     }
                     sendBoard = false;
                 }

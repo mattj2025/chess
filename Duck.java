@@ -30,4 +30,18 @@ public class Duck extends Piece
   {
     return new Duck(getX(), getY());
   }
+
+  @Override
+    public int getPieceCode()
+    {
+        if (isWhite())
+            return 4;
+        return -4;
+    }
+  
+  @Override
+  public int getScore()
+  {
+	  return 0;
+  }
 }

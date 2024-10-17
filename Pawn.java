@@ -129,4 +129,18 @@ public class Pawn extends Piece
   {
     return new Pawn(getX(), getY(), isWhite());
   }
+
+  @Override
+    public int getPieceCode()
+    {
+        if (isWhite())
+            return 8;
+        return -8;
+    }
+  
+  @Override
+  public int getScore()
+  {
+	  return 1;
+  }
 }

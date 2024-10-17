@@ -18,4 +18,18 @@ public class Empty extends Piece
   {
     return new Empty(getX(), getY());
   }
+
+  @Override
+    public int getPieceCode()
+    {
+        if (isWhite())
+            return 5;
+        return -5;
+    }
+  
+  @Override
+  public int getScore()
+  {
+	  return 0;
+  }
 }

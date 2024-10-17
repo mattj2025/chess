@@ -67,4 +67,18 @@ public class Knight extends Piece
   {
     return new Knight(getX(), getY(), isWhite());
   }
+
+  @Override
+    public int getPieceCode()
+    {
+        if (isWhite())
+            return 7;
+        return -7;
+    }
+  
+  @Override
+  public int getScore()
+  {
+	  return 3;
+  }
 }

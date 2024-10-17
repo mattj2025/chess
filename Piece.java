@@ -46,8 +46,9 @@ public abstract class Piece implements Serializable
   {
     return white;
   }
-
-  //public abstract int[][] getPossibleMoves(Board b);
+  
+  public abstract int getScore();
+  
   public abstract ArrayList<ArrayList<Integer>> getPossibleMoves(Board b);
 
   public boolean move(int xCoord, int yCoord, Board b, boolean test)
@@ -122,4 +123,6 @@ public abstract class Piece implements Serializable
   }
 
   public abstract Piece copy();
+
+  public abstract int getPieceCode();
 }

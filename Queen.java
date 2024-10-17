@@ -209,4 +209,18 @@ public class Queen extends Piece
   {
     return new Queen(getX(), getY(), isWhite());
   }
+
+  @Override
+    public int getPieceCode()
+    {
+        if (isWhite())
+            return 9;
+        return -9;
+    }
+  
+  @Override
+  public int getScore()
+  {
+	  return 9;
+  }
 }

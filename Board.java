@@ -10,6 +10,8 @@
 7 R k B Q K B k R
 */
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.*;
 
@@ -346,6 +348,7 @@ public class Board implements Serializable
     @Override
     public String toString()
     {
+        toNN();
         String s = "";
         for (int y = 0; y < 8; y++)
         {
@@ -372,5 +375,25 @@ public class Board implements Serializable
                     temp.setPiece(x, y, pieces[x][y].copy());
 
         return temp;
+    }
+
+    public int[] toNN()
+    {
+        ArrayList<Integer> list = new ArrayList<>();
+        for (int y = 0; y < 8; y++)
+            for (int x = 0; x < 8; x++)
+                if (pieces[x][y] != null)
+                    list.add(pieces[x][y].getPieceCode());
+                else
+                    list.add(0);
+
+        try{ 
+            PrintWriter p = new PrintWriter("s.txt");
+            p.println(list); 
+            p.close();
+        } catch(FileNotFoundException e) {}
+        
+
+        return list.stream().mapToInt(i -> i).toArray();
     }
 }
