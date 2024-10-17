@@ -703,7 +703,7 @@ public class Main {
                     }
                     if (isMinimax)
                     {
-                    	int[] m = Computer.getMinimaxMove(chess, isWhite, 5);
+                    	int[] m = Computer.getMinimaxMove(chess, isWhite, 3);
                     	chess.movePiece(m[0], m[1], m[2], m[3], false);
                     	reloadBoard(buttons, chess);
                     }
@@ -718,6 +718,7 @@ public class Main {
             if (whiteTurn)
                 winner = "Black";
             JOptionPane.showMessageDialog(null, "Checkmate! " + winner + " won!");
+            isMinimax = false;
             chess = new Board();
             selected = false;
             whiteTurn = true;

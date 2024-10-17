@@ -251,13 +251,20 @@ public class Board implements Serializable
     // returns 0 if not occupied, 1 if white, 2 if black, 3 if empty
     public int occupation(int x, int y)
     {
-        if (pieces[x][y] == null)
-            return 0;
-        if (pieces[x][y].isWhite())
-            return 1;
-        if (pieces[x][y] instanceof Empty)
-            return 3;
-        return 2;
+        try
+        {
+            if (pieces[x][y] == null)
+                return 0;
+            if (pieces[x][y].isWhite())
+                return 1;
+            if (pieces[x][y] instanceof Empty)
+                return 3;
+            return 2;
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            return 0;   // good enough for me :P
+        }
     }
 
     public String getPieceAbbr(int x, int y)

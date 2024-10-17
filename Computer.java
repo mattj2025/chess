@@ -7,27 +7,25 @@ public class Computer
 	 * @param moves A 2D ArrayList with all possible moves
 	 * @param chess The board in play
 	 * @param white Is the bot white
-	 * @param depth Layers to search
+	 * @param depth Layers to search (Must be odd number)
 	 * @return An array, [x1,y1,x2,y2], with the best move
 	 */
 	public static int[] getMinimaxMove(Board chess, boolean white, int depth)
-	{
-		int[] move = {0, 0, 0, 0};	// [xCoord,yCoord,xMove,yMove]
-				
+	{	
 		int clr;
 		if (white)
 			clr = 1;
 		else
 			clr = 2;
 		
-		Map<Integer,int[]> scoredMoves = new TreeMap<Integer, int[]>();
+		Map<Integer, int[]> scoredMoves = new TreeMap<>();
 		
 		for (int i = 0; i < 8; i++)
 			for (int j = 0; j < 8; j++)
 				if (chess.occupation(i, j) == clr) {
 					
 					ArrayList<ArrayList<Integer>> moves = chess.getPiece(i, j).getPossibleMoves(chess);
-					ArrayList<Integer> scores = new ArrayList<Integer>();
+					ArrayList<Integer> scores = new ArrayList<>();
 					int score = Integer.MIN_VALUE;
 
 					for (int k = 0; k < moves.get(0).size(); k++)
@@ -75,7 +73,7 @@ public class Computer
 				if (chess.occupation(i, j) == clr) {
 					
 					ArrayList<ArrayList<Integer>> moves = chess.getPiece(i, j).getPossibleMoves(chess);
-					ArrayList<Integer> scores = new ArrayList<Integer>();
+					ArrayList<Integer> scores = new ArrayList<>();
 					score = Integer.MIN_VALUE;
 
 					for (int k = 0; k < moves.get(0).size(); k++)
