@@ -17,43 +17,43 @@ public class Knight extends Piece
     int x = getX();
     int y = getY();
 
-    if (x - 1 > -1 && y - 2 > -1 && b.occupation(x - 1, y - 2) != Main.boolToInt(isWhite()) && b.occupation(x - 1, y - 2) != 3)
+    if (x - 1 > -1 && y - 2 > -1 && b.occupation(x - 1, y - 2) != Board.boolToOccupation(isWhite()) && b.occupation(x - 1, y - 2) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x - 1);
         moves.get(1).add(y - 2);
     }
-    if (x + 1 < 8 && y - 2 > -1 && b.occupation(x + 1, y - 2) != Main.boolToInt(isWhite()) && b.occupation(x + 1, y - 2) != 3)
+    if (x + 1 < 8 && y - 2 > -1 && b.occupation(x + 1, y - 2) != Board.boolToOccupation(isWhite()) && b.occupation(x + 1, y - 2) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x + 1);
         moves.get(1).add(y - 2);
     }
-    if (x - 1 > -1 && y + 2 < 8 && b.occupation(x - 1, y + 2) != Main.boolToInt(isWhite()) && b.occupation(x - 1, y + 2) != 3)
+    if (x - 1 > -1 && y + 2 < 8 && b.occupation(x - 1, y + 2) != Board.boolToOccupation(isWhite()) && b.occupation(x - 1, y + 2) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x - 1);
         moves.get(1).add(y + 2);
     }
-    if (x + 1 < 8 && y + 2 < 8 && b.occupation(x + 1, y + 2) != Main.boolToInt(isWhite()) && b.occupation(x + 1, y + 2) != 3)
+    if (x + 1 < 8 && y + 2 < 8 && b.occupation(x + 1, y + 2) != Board.boolToOccupation(isWhite()) && b.occupation(x + 1, y + 2) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x + 1);
         moves.get(1).add(y + 2);
     }
     
-    if (x - 2 > -1 && y - 1 > -1 && b.occupation(x - 2, y - 1) != Main.boolToInt(isWhite()) && b.occupation(x - 2, y - 1) != 3)
+    if (x - 2 > -1 && y - 1 > -1 && b.occupation(x - 2, y - 1) != Board.boolToOccupation(isWhite()) && b.occupation(x - 2, y - 1) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x - 2);
         moves.get(1).add(y - 1);
     }
-    if (x + 2 < 8 && y - 1 > -1 && b.occupation(x + 2, y - 1) != Main.boolToInt(isWhite()) && b.occupation(x + 2, y - 1) != 3)
+    if (x + 2 < 8 && y - 1 > -1 && b.occupation(x + 2, y - 1) != Board.boolToOccupation(isWhite()) && b.occupation(x + 2, y - 1) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x + 2);
         moves.get(1).add(y - 1);
     }
-    if (x - 2 > -1 && y + 1 < 8 && b.occupation(x - 2, y + 1) != Main.boolToInt(isWhite()) && b.occupation(x - 2, y + 1) != 3)
+    if (x - 2 > -1 && y + 1 < 8 && b.occupation(x - 2, y + 1) != Board.boolToOccupation(isWhite()) && b.occupation(x - 2, y + 1) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x - 2);
         moves.get(1).add(y + 1);
     }
-    if (x + 2 < 8 && y + 1 < 8 && b.occupation(x + 2, y + 1) != Main.boolToInt(isWhite()) && b.occupation(x + 2, y + 1) != 3)
+    if (x + 2 < 8 && y + 1 < 8 && b.occupation(x + 2, y + 1) != Board.boolToOccupation(isWhite()) && b.occupation(x + 2, y + 1) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x + 2);
         moves.get(1).add(y + 1);

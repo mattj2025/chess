@@ -6,7 +6,7 @@ public abstract class Piece implements Serializable
 {
   private int x;
   private int y;
-  private final boolean white;
+  private boolean white;
   private final String abbr;
   private final ImageIcon icon;
   
@@ -24,7 +24,9 @@ public abstract class Piece implements Serializable
 
   public String getAbbr()
   {
-    return abbr;
+    if (white)
+        return abbr;
+    return abbr.toLowerCase();
   }
 
   public ImageIcon getIcon()
@@ -46,11 +48,38 @@ public abstract class Piece implements Serializable
   {
     return white;
   }
+
+  public Board.Occupation getOccupation()
+  {
+    if (white)
+      return Board.Occupation.WHITE;
+    return Board.Occupation.BLACK;
+  }
+
+  public Piece switchColors()
+  {
+    white = !white;
+    return this;
+  }
   
   public abstract int getScore();
   
+  /**
+   * Returns an <code>ArrayList</code> of 2 <code>Integer</code> <code>ArrayLists</code> <br>
+   * The zeroth <code>ArrayList</code> is the x values, and the first <code>ArrayList</code> is the corresponding y values
+   * @param b The Board
+   * @return The possible moves for the piece
+   */
   public abstract ArrayList<ArrayList<Integer>> getPossibleMoves(Board b);
 
+  /**
+   * Moves the piece
+   * @param xCoord The x coord to move to
+   * @param yCoord The y coord to move to
+   * @param b The board
+   * @param test if it is a test move (don't play sounds)
+   * @return
+   */
   public boolean move(int xCoord, int yCoord, Board b, boolean test)
   {
     Board temp = b.copy();

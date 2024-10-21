@@ -37,12 +37,12 @@ public class Pawn extends Piece
         moves.get(1).add(y + 2 * i);
       }
     }
-    if (x != 0 && b.isOccupied(x - 1, y + i) && b.occupation(x - 1, y + i) != Main.boolToInt(isWhite()) && !b.getPiece(x - 1, y + i).equals(new Duck(x - 1, y + i)) && b.occupation(x - 1, y + i) != 3)
+    if (x != 0 && b.isOccupied(x - 1, y + i) && b.occupation(x - 1, y + i) != Board.boolToOccupation(isWhite()) && !b.getPiece(x - 1, y + i).equals(new Duck(x - 1, y + i)) && b.occupation(x - 1, y + i) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x - 1);
         moves.get(1).add(y  + i);
     }
-    if (x != 7 && b.isOccupied(x + 1, y + i) && b.occupation(x + 1, y + i) != Main.boolToInt(isWhite()) && !b.getPiece(x + 1, y + i).equals(new Duck(x + 1, y + i)) && b.occupation(x - 1, y + i) != 3)
+    if (x != 7 && b.isOccupied(x + 1, y + i) && b.occupation(x + 1, y + i) != Board.boolToOccupation(isWhite()) && !b.getPiece(x + 1, y + i).equals(new Duck(x + 1, y + i)) && b.occupation(x - 1, y + i) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x + 1);
         moves.get(1).add(y  + i);
@@ -79,12 +79,12 @@ public class Pawn extends Piece
     if (isWhite())
         i = -1;
 
-    if (x != 0 && b.isOccupied(x - 1, y + i) && b.occupation(x - 1, y + i) != Main.boolToInt(isWhite()) && b.occupation(x - 1, y + i) != 3)
+    if (x != 0 && b.isOccupied(x - 1, y + i) && b.occupation(x - 1, y + i) != Board.boolToOccupation(isWhite()) && b.occupation(x - 1, y + i) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x - 1);
         moves.get(1).add(y  + i);
     }
-    if (x != 7 && b.isOccupied(x + 1, y + i) && b.occupation(x + 1, y + i) != Main.boolToInt(isWhite()) && b.occupation(x - 1, y + i) != 3)
+    if (x != 7 && b.isOccupied(x + 1, y + i) && b.occupation(x + 1, y + i) != Board.boolToOccupation(isWhite()) && b.occupation(x - 1, y + i) != Board.Occupation.EMPTY)
     {
         moves.get(0).add(x + 1);
         moves.get(1).add(y  + i);

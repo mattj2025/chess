@@ -10,13 +10,8 @@ public class Computer
 	 * @param depth Layers to search (Must be odd number)
 	 * @return An array, [x1,y1,x2,y2], with the best move
 	 */
-	public static int[] getMinimaxMove(Board chess, boolean white, int depth)
+	public static int[] getMinimaxMove(Board chess, Board.Occupation clr, int depth)
 	{	
-		int clr;
-		if (white)
-			clr = 1;
-		else
-			clr = 2;
 		
 		Map<Integer, int[]> scoredMoves = new TreeMap<>();
 		
@@ -32,7 +27,7 @@ public class Computer
 					{
 						Board c = chess.copy();
 						c.movePiece(i, j, moves.get(0).get(k), moves.get(1).get(k), true);
-						int newScore = calculateScore(c, white);
+						int newScore = calculateScore(c, clr);
 						scores.add(newScore);
 						if (newScore > score)
 							score = newScore;
@@ -43,7 +38,7 @@ public class Computer
 						{
 							Board c = chess.copy();
 							c.movePiece(i, j, moves.get(0).get(k), moves.get(1).get(k), true);
-							score = minimaxLayer(c, !white, depth - 1);
+							score = minimaxLayer(c, Board.negate(clr), depth - 1);
 							int[] m = {i, j, moves.get(0).get(k), moves.get(1).get(k)};
 							scoredMoves.put(score, m);
 						}
@@ -58,15 +53,9 @@ public class Computer
 	}
 	
 	
-	public static int minimaxLayer(Board chess, boolean white, int depth)
+	public static int minimaxLayer(Board chess, Board.Occupation clr, int depth)
 	{
 		int score = Integer.MIN_VALUE;
-		
-		int clr;
-		if (white)
-			clr = 1;
-		else
-			clr = 2;
 		
 		for (int i = 0; i < 8; i++)
 			for (int j = 0; j < 8; j++)
@@ -80,7 +69,7 @@ public class Computer
 					{
 						Board c = chess.copy();
 						c.movePiece(i, j, moves.get(0).get(k), moves.get(1).get(k), true);
-						int newScore = calculateScore(c, white);
+						int newScore = calculateScore(c, clr);
 						scores.add(newScore);
 						if (newScore > score)
 							score = newScore;
@@ -92,7 +81,7 @@ public class Computer
 							{
 								Board c = chess.copy();
 								c.movePiece(i, j, moves.get(0).get(k), moves.get(1).get(k), true);
-								score = minimaxLayer(c, !white, depth - 1);
+								score = minimaxLayer(c, Board.negate(clr), depth - 1);
 							}
 						}
 					else
@@ -105,14 +94,8 @@ public class Computer
 		return score;
 	}
 	
-	public static int[] getMinimaxMoveLinear(Board chess, boolean white, int depth)
+	public static int[] getMinimaxMoveLinear(Board chess, Board.Occupation clr, int depth)
 	{
-		int clr;
-		if (white)
-			clr = 1;
-		else
-			clr = 2;
-		
 		int[] move = {0, 0, 0, 0};	// [xCoord,yCoord,xMove,yMove]
 		int score = Integer.MIN_VALUE;
 		
@@ -124,7 +107,7 @@ public class Computer
 					{
 						Board c = chess.copy();
 						c.movePiece(i, j, moves.get(0).get(k), moves.get(1).get(k), true);
-						int newScore = calculateScore(c, white);
+						int newScore = calculateScore(c, clr);
 						if (newScore > score || (newScore == score && Math.random() > .5))
 						{
 							move[0] = i;
@@ -139,29 +122,18 @@ public class Computer
 		return move;
 	}
 	
-	private static int calculateScore(Board chess, boolean white)
+	private static int calculateScore(Board chess, Board.Occupation clr)
 	{
 		int sum = 0;
-		
-		int clr;
-		if (white)
-			clr = 1;
-		else
-			clr = 2;
 				
 		for (int i = 0; i < 8; i++)
 			for (int j = 0; j < 8; j++)
 				if (chess.occupation(i, j) == clr)
 					sum += chess.getPiece(i,j).getScore();
 		
-		if (clr == 1)
-			clr = 2;
-		else
-			clr = 1;
-		
 		for (int i = 0; i < 8; i++)
 			for (int j = 0; j < 8; j++)
-				if (chess.occupation(i, j) == clr)
+				if (chess.occupation(i, j) != clr && chess.occupation(i, j) != Board.Occupation.NULL)
 					sum -= chess.getPiece(i,j).getScore();
 		
 		return sum;

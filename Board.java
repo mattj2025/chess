@@ -18,8 +18,16 @@ import java.util.*;
 public class Board implements Serializable
 {
     private final Piece[][] pieces;
-    private static final String[] pieceList = {"King","Queen","Rook","Rook","Knight","Knight","Bishop","Bishop"};
+    public static final String[] pieceList = {"King","Queen","Rook","Rook","Knight","Knight","Bishop","Bishop"};
     private static final AudioFilePlayer player = new AudioFilePlayer();
+    public enum Occupation {
+        NULL,
+        WHITE,
+        BLACK,
+        EMPTY,
+        DUCK,
+        TRAP
+    }
 
     public Board()
     {
@@ -245,26 +253,53 @@ public class Board implements Serializable
 
     public boolean isOccupied(int x, int y)
     {
-        return x > 7 || x < 0 || y > 7 || y < 0 || pieces[x][y] != null;
+        return x > 7 || x < 0 || y > 7 || y < 0 || (pieces[x][y] != null || (pieces[x][y] instanceof Trap));
     }
 
-    // returns 0 if not occupied, 1 if white, 2 if black, 3 if empty
-    public int occupation(int x, int y)
+    /**
+     * Returns an Occupation enum (<code>BLACK</code>, <code>WHITE</code>, <code>NULL</code>, <code>EMPTY</code>, <code>DUCK</code>)
+     * @param x The x coordinate of the piece
+     * @param y The y coordinate of the piece
+     * @return Occupation enum defining the color of the piece
+     */
+    public Occupation occupation(int x, int y)
     {
         try
-        {
+        { 
             if (pieces[x][y] == null)
-                return 0;
-            if (pieces[x][y].isWhite())
-                return 1;
-            if (pieces[x][y] instanceof Empty)
-                return 3;
-            return 2;
-        }
+                return Occupation.NULL;
+            return pieces[x][y].getOccupation();
+        } 
         catch (ArrayIndexOutOfBoundsException e)
         {
-            return 0;   // good enough for me :P
+            return Occupation.NULL;
         }
+    }
+
+    /**
+     * Converts a boolean of the color to an Occupation enum
+     * @param b <code>true</code>: <code>WHITE</code>, <code>false</code>: <code>BLACK</code>
+     * @return the enum version of the variable
+     */
+    public static Occupation boolToOccupation(boolean b)
+    {
+        if (b)
+            return Occupation.WHITE;
+        return Occupation.BLACK;
+    }
+
+    /**
+     * Converts <code>WHITE</code> to <code>BLACK</code> and vice versa. Basically the "!" operator
+     * @param o Occupation of the piece to negate
+     * @return The opposite occupation of the piece
+     */
+    public static Occupation negate(Occupation o)
+    {
+        return switch (o) {
+            case Occupation.BLACK -> Occupation.WHITE;
+            case Occupation.WHITE -> Occupation.BLACK;
+            default -> Occupation.NULL;
+        };
     }
 
     public String getPieceAbbr(int x, int y)
@@ -318,6 +353,70 @@ public class Board implements Serializable
         return ct == 2;
     }
 
+    public ArrayList<ArrayList<Integer>> getPawns(Occupation o)
+    {
+        ArrayList<ArrayList<Integer>> pawns = new ArrayList<>();
+        pawns.add(new ArrayList<>());
+        pawns.add(new ArrayList<>());
+
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (pieces[i][j] != null && pieces[i][j] instanceof Pawn && pieces[i][j].getOccupation() == o) {
+                    pawns.get(0).add(i);
+                    pawns.get(1).add(j);
+                }
+
+        return pawns;
+    }
+
+    public ArrayList<ArrayList<Integer>> getPieces(Occupation o)
+    {
+        ArrayList<ArrayList<Integer>> p = new ArrayList<>();
+        p.add(new ArrayList<>());
+        p.add(new ArrayList<>());
+
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (pieces[i][j] != null && pieces[i][j].getOccupation() == o && !(pieces[i][j] instanceof King)) {
+                    p.get(0).add(i);
+                    p.get(1).add(j);
+                }
+
+        return p;
+    }
+
+    public ArrayList<ArrayList<Integer>> getChessmen(Occupation o)
+    {
+        ArrayList<ArrayList<Integer>> p = new ArrayList<>();
+        p.add(new ArrayList<>());
+        p.add(new ArrayList<>());
+
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (pieces[i][j] != null && pieces[i][j].getOccupation() == o && !(pieces[i][j] instanceof King) && !(pieces[i][j] instanceof Pawn)) {
+                    p.get(0).add(i);
+                    p.get(1).add(j);
+                }
+
+        return p;
+    }
+
+    public ArrayList<ArrayList<Integer>> getBlankTiles()
+    {
+        ArrayList<ArrayList<Integer>> p = new ArrayList<>();
+        p.add(new ArrayList<>());
+        p.add(new ArrayList<>());
+
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (pieces[i][j] == null) {
+                    p.get(0).add(i);
+                    p.get(1).add(j);
+                }
+
+        return p;
+    }
+
     /**
      * Moves a piece
      * @param x1 the current x coord
@@ -328,7 +427,11 @@ public class Board implements Serializable
      */
     public void movePiece(int x1, int y1, int x2, int y2, boolean test)
     {
-        if (Main.atomic && pieces[x2][y2] != null) // Blow up all non-pawns in surrounding squares for atomic
+        if (pieces[x2][y2] instanceof Trap)
+        {
+            Main.player.play("sounds\\trap.wav");
+        }
+        else if (Main.atomic && pieces[x2][y2] != null) // Blow up all non-pawns in surrounding squares for atomic
         {
             int ct = 0;
             for (int i = x2 - 1; i < x2 + 2; i++)

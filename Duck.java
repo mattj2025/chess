@@ -44,4 +44,10 @@ public class Duck extends Piece
   {
 	  return 0;
   }
+
+  @Override
+  public Board.Occupation getOccupation()
+  {
+    return Board.Occupation.DUCK;
+  }
 }

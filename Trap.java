@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 
-public class Empty extends Piece
+public class Trap extends Piece
 {
-  public Empty(int x, int y)
+  public Trap(int x, int y)
   {
-    super(x, y, false, " ", "");
+    super(x, y, false, "T", "");
   }
 
   @Override
@@ -14,9 +14,9 @@ public class Empty extends Piece
   }
 
   @Override
-  public Empty copy()
+  public Trap copy()
   {
-    return new Empty(getX(), getY());
+    return new Trap(getX(), getY());
   }
 
   @Override
@@ -30,7 +30,7 @@ public class Empty extends Piece
   @Override
   public Board.Occupation getOccupation()
   {
-    return Board.Occupation.EMPTY;
+    return Board.Occupation.TRAP;
   }
   
   @Override

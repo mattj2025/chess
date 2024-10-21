@@ -23,9 +23,9 @@ public class Queen extends Piece
 
     while (!obstructed) // x going right
     {
-      if (xCoord == 8 || (b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite())))
+      if (xCoord == 8 || (b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite())))
         obstructed = true;
-      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
       {
         obstructed = true;
         moves.get(0).add(xCoord);
@@ -44,9 +44,9 @@ public class Queen extends Piece
       
     while (!obstructed) // x going left
     {
-      if (xCoord == -1 || (b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite())))
+      if (xCoord == -1 || (b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite())))
         obstructed = true;
-      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
       {
         obstructed = true;
         moves.get(0).add(xCoord);
@@ -66,9 +66,9 @@ public class Queen extends Piece
 
     while (!obstructed) // y going up
     {
-      if (yCoord == -1 || (b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite())))
+      if (yCoord == -1 || (b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite())))
         obstructed = true;
-      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
       {
         obstructed = true;
         moves.get(0).add(xCoord);
@@ -87,9 +87,9 @@ public class Queen extends Piece
 
     while (!obstructed) // y going down
     {
-      if (yCoord == 8 || (b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite())))
+      if (yCoord == 8 || (b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite())))
         obstructed = true;
-      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+      else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
       {
         obstructed = true;
         moves.get(0).add(xCoord);
@@ -112,9 +112,9 @@ public class Queen extends Piece
     if (xCoord != 8 || yCoord != -1)
       while (!obstructed) // right up
       {
-        if (xCoord == 8 || yCoord == 8 || b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite()))
+        if (xCoord == 8 || yCoord == 8 || b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite()))
           obstructed = true;
-        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
         {
           obstructed = true;
           moves.get(0).add(xCoord);
@@ -136,9 +136,9 @@ public class Queen extends Piece
     if (xCoord != -1 || yCoord != -1)
       while (!obstructed) // left up
       {
-        if (xCoord == -1 || yCoord == -1 || b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite()))
+        if (xCoord == -1 || yCoord == -1 || b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite()))
           obstructed = true;
-        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
         {
           obstructed = true;
           moves.get(0).add(xCoord);
@@ -160,9 +160,9 @@ public class Queen extends Piece
     if (xCoord != 8 || yCoord != 8)
       while (!obstructed) // right down
       {
-        if (yCoord == -1 || xCoord == 8 || b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite()))
+        if (yCoord == -1 || xCoord == 8 || b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite()))
           obstructed = true;
-        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
         {
           obstructed = true;
           moves.get(0).add(xCoord);
@@ -184,9 +184,9 @@ public class Queen extends Piece
     if (xCoord != -1 || yCoord != 8)
       while (!obstructed) // left down
       {
-        if (yCoord == 8 || xCoord == -1 || b.occupation(xCoord, yCoord) == Main.boolToInt(isWhite()))
+        if (yCoord == 8 || xCoord == -1 || b.occupation(xCoord, yCoord) == Board.boolToOccupation(isWhite()))
           obstructed = true;
-        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Main.boolToInt(isWhite()))
+        else if (b.isOccupied(xCoord, yCoord) && b.occupation(xCoord, yCoord) != Board.boolToOccupation(isWhite()))
         {
           obstructed = true;
           moves.get(0).add(xCoord);

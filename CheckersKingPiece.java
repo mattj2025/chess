@@ -25,7 +25,7 @@ public class CheckersKingPiece extends Piece
                 moves.get(0).add(x - 1);
                 moves.get(1).add(y + 1 * yMultiplier);
             }
-            else if (x > 1 && !b.isOccupied(x - 2, y + 2 * yMultiplier) && b.occupation(x - 1, y + 1 * yMultiplier) == Main.boolToInt(!isWhite()))
+            else if (x > 1 && !b.isOccupied(x - 2, y + 2 * yMultiplier) && b.occupation(x - 1, y + 1 * yMultiplier) == Board.boolToOccupation(!isWhite()))
             {
                 moves.get(0).add(x - 2);
                 moves.get(1).add(y + 2 * yMultiplier);
@@ -36,7 +36,7 @@ public class CheckersKingPiece extends Piece
                 moves.get(0).add(x + 1);
                 moves.get(1).add(y + 1 * yMultiplier);
             }
-            else if (x < 7 && !b.isOccupied(x + 2, y + 2 * yMultiplier) && b.occupation(x + 1, y + 1 * yMultiplier) == Main.boolToInt(!isWhite()))
+            else if (x < 7 && !b.isOccupied(x + 2, y + 2 * yMultiplier) && b.occupation(x + 1, y + 1 * yMultiplier) == Board.boolToOccupation(!isWhite()))
             {
                 moves.get(0).add(x + 2);
                 moves.get(1).add(y + 2 * yMultiplier);

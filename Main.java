@@ -5,8 +5,11 @@ import java.util.*;
 import javax.swing.*;
 
 public class Main {
-    private static final boolean SKIP_TITLE = false;
+    private static final boolean SKIP_TITLE = true;
     private static final int BUTTON_SIZE = 80;
+    public static final double EVENT_PROBABILITY = .925;
+    public static final double EMPTY_REMOVE_PROBABILITY = .5;
+    public static int[] emptyCoords = {-1,-1};
     public static Board chess;
     public static Main mainInstance = new Main();
     public static JButton[][] buttons;
@@ -27,7 +30,9 @@ public class Main {
     public static boolean is960 = false;
     public static boolean isCheckers = false;
     public static boolean isPre = false;
+    public static boolean randomEvents = false;
     public static boolean blindfold = false;
+    public static boolean fogOfWar = false;
     public static boolean multiplayer = false;
     public static boolean isWhite = false;
     public static boolean isHost = false;
@@ -60,7 +65,7 @@ public class Main {
     public static Color[] textColors = {Color.DARK_GRAY, Color.LIGHT_GRAY};
     public static Color[] emptyColors = {Color.BLACK, Color.BLACK};
     public static Color titleColor = Color.BLACK;
-    private static final AudioFilePlayer player = new AudioFilePlayer();
+    static final AudioFilePlayer player = new AudioFilePlayer();
     public static final ActionListener timeout = (ActionEvent e) -> {
         System.out.println("Over on time");
         JOptionPane.showMessageDialog(null, "Times out. Game Over");
@@ -287,6 +292,12 @@ public class Main {
         isPreBox.addItemListener((ItemEvent e) -> {
             isPre = !isPre;
         });
+
+        JCheckBox randomEventsBox = new JCheckBox("Random Events");
+        randomEventsBox.setSelected(randomEvents);
+        randomEventsBox.addItemListener((ItemEvent e) -> {
+            randomEvents = !randomEvents;
+        });
         
         JCheckBox isBadBox = new JCheckBox("Really Bad");
         isBadBox.setSelected(isBad);
@@ -309,6 +320,20 @@ public class Main {
             else
                 player.play("sounds\\appear.wav");
             reloadBoard(buttons,chess);
+        });
+
+        JCheckBox fogOfWarBox = new JCheckBox("Fog of War");
+        fogOfWarBox.setSelected(fogOfWar);
+        fogOfWarBox.addItemListener((ItemEvent e) -> {
+            if (multiplayer)
+            {
+                fogOfWar = !fogOfWar;
+                if (fogOfWar)
+                    player.play("sounds\\disappear.wav");
+                else
+                    player.play("sounds\\appear.wav");
+                reloadBoard(buttons,chess);
+            }
         });
         
         JCheckBox isMinimaxBox = new JCheckBox("Minimax Bot");
@@ -407,9 +432,11 @@ public class Main {
         jFrame.add(sidewaysBox);
         jFrame.add(is960Box);
         jFrame.add(blindfoldBox);
+        jFrame.add(fogOfWarBox);
         jFrame.add(isCheckersBox);
         jFrame.add(isPreBox);
         jFrame.add(isBadBox);
+        jFrame.add(randomEventsBox);
         jFrame.add(isDerbyBox);
         jFrame.add(isTimedBox);
         jFrame.add(isMinimaxBox);
@@ -422,7 +449,8 @@ public class Main {
         jFrame.add(whiteTime);
         //jFrame.add(moves);    // ugly
 
-        startFrame.setVisible(false);
+        if (!SKIP_TITLE)
+            startFrame.setVisible(false);
         jFrame.setVisible(true);
     }
 
@@ -643,10 +671,14 @@ public class Main {
                         
                     for (int i = 0; i < 8; i++) 
                         for (int j = 0; j < 8; j++)
+                        {
                             if ((j % 2 == 0 && i % 2 == 0) || (j % 2 == 1 && i % 2 == 1))
                                 buttons[i][j].setBackground(tileA[theme]);
                             else
                                 buttons[i][j].setBackground(tileB[theme]);
+                            if (chess.occupation(i,j) == Board.Occupation.EMPTY)
+                                buttons[i][j].setBackground(emptyColors[theme]);
+                        }
 
                     selected = false;
 
@@ -659,10 +691,14 @@ public class Main {
                     
                     for (int i = 0; i < 8; i++) 
                         for (int j = 0; j < 8; j++)
+                        {
                             if ((j % 2 == 0 && i % 2 == 0) || (j % 2 == 1 && i % 2 == 1))
                                 buttons[i][j].setBackground(tileA[theme]);
                             else
                                 buttons[i][j].setBackground(tileB[theme]);
+                            if (chess.occupation(i,j) == Board.Occupation.EMPTY)
+                                buttons[i][j].setBackground(emptyColors[theme]);
+                        }
 
                     ArrayList<ArrayList<Integer>> possibleMoves = chess.getPiece(row,col).getPossibleMoves(chess);
                     
@@ -687,10 +723,218 @@ public class Main {
 
                 if (sendBoard)
                 {
+                    if (emptyCoords[0] != -1)
+                    {
+                        System.out.println("Empty/Trap removed!");
+                        JOptionPane.showMessageDialog(null, "Blocked/Trapped tile removed!");
+                        chess.setPiece(emptyCoords[0], emptyCoords[1], null);
+                        emptyCoords[0] = -1;
+                    }
+
+                    if (randomEvents && Math.random() < EVENT_PROBABILITY) {
+                        // ideas: hidden trap, freeze piece, piece changes types, swap location of all non-pawns, knight added to middle of board that moves randomly every turn
+                        enum Event {
+                            PAWN,
+                            ALLEGIANCE,
+                            EMPTY,
+                            MISSILE,
+                            PROMOTION,
+                            REMOVE,
+                            ADD,
+                            TORPEDO,
+                            ATOMIC,
+                            TRAP
+                        }
+
+                        Event[] events = Event.values();
+                        switch (events[((int) (Math.random() * events.length))])
+                        {
+                            case PAWN -> {
+                                // todo: possible moves not updated
+                                System.out.println("Pawn Swap!");
+                                JOptionPane.showMessageDialog(null, "Pawn Swap!");
+                                ArrayList<ArrayList<Integer>> whitePawns = chess.getPawns(Board.Occupation.WHITE);
+                                ArrayList<ArrayList<Integer>> blackPawns = chess.getPawns(Board.Occupation.BLACK);
+
+                                int x = (int) (Math.random() * whitePawns.size());
+                                Piece temp = chess.getPiece( whitePawns.get(0).get(x), whitePawns.get(1).get(x) );
+                                int y = (int) (Math.random() * blackPawns.size());
+                                chess.setPiece( whitePawns.get(0).get(x), whitePawns.get(1).get(x),  chess.getPiece( blackPawns.get(0).get(y), blackPawns.get(1).get(y) ));
+                                chess.setPiece( blackPawns.get(0).get(y), blackPawns.get(1).get(y), temp);
+                                break;
+                            }
+                            case ALLEGIANCE -> {
+                                // todo: color of pieces not updated
+                                JOptionPane.showMessageDialog(null, "Allegiance Shift!");
+                                System.out.println("Allegiance Shift!");
+                                ArrayList<ArrayList<Integer>> whitePieces = chess.getPieces(Board.Occupation.WHITE);
+                                ArrayList<ArrayList<Integer>> blackPieces = chess.getPieces(Board.Occupation.BLACK);
+                                int r = (int) (Math.random() * whitePieces.size());
+                                chess.setPiece( whitePieces.get(0).get(r), whitePieces.get(1).get(r), chess.getPiece(whitePieces.get(0).get(r), whitePieces.get(1).get(r)).switchColors() );
+                                r = (int) (Math.random() * blackPieces.size());
+                                chess.setPiece( blackPieces.get(0).get(r), blackPieces.get(1).get(r), chess.getPiece(blackPieces.get(0).get(r), blackPieces.get(1).get(r)).switchColors() );
+                                break;
+                            }
+                            case EMPTY -> {
+                                // todo: Empty added but screen not updated
+                                JOptionPane.showMessageDialog(null, "Blocked tile added!");
+                                ArrayList<ArrayList<Integer>> blankTiles = chess.getBlankTiles();
+                                int r = (int) (Math.random() * blankTiles.size());
+                                int x = blankTiles.get(0).get(r);
+                                int y = blankTiles.get(1).get(r);
+                                System.out.println("Blocked Tile added at " + x + ", " + y);
+                                chess.setPiece(x, y, new Empty(x,y));
+                                if (Math.random() < EMPTY_REMOVE_PROBABILITY)
+                                {
+                                    emptyCoords[0] = x;
+                                    emptyCoords[1] = y;
+                                }
+                                break;
+                            }
+                            case MISSILE -> {
+                                System.out.println("Missiles Launched!");
+                                JOptionPane.showMessageDialog(null, "Missiles Launched!");
+                                ArrayList<ArrayList<Integer>> whiteNonBlankTiles = chess.getPieces(Board.Occupation.WHITE);
+                                ArrayList<ArrayList<Integer>> blackNonBlankTiles = chess.getPieces(Board.Occupation.BLACK);
+
+                                int r = (int) (Math.random() * whiteNonBlankTiles.size());
+                                int x = whiteNonBlankTiles.get(0).get(r);
+                                int y = whiteNonBlankTiles.get(1).get(r);
+                                chess.setPiece(x, y, new Empty(x,y));
+
+                                r = (int) (Math.random() * blackNonBlankTiles.size());
+                                x = blackNonBlankTiles.get(0).get(r);
+                                y = blackNonBlankTiles.get(1).get(r);
+                                chess.setPiece(x, y, new Empty(x,y));
+
+                                player.play("sounds\\bomb.wav");
+                                break;
+                            }
+                            case PROMOTION -> {
+                                System.out.println("Promotion!");
+                                JOptionPane.showMessageDialog(null, "Promotion!");
+                                ArrayList<ArrayList<Integer>> whitePawns = chess.getPawns(Board.Occupation.WHITE);
+                                ArrayList<ArrayList<Integer>> blackPawns = chess.getPawns(Board.Occupation.BLACK);
+
+                                int r = (int) (Math.random() * whitePawns.size());
+                                int[] whiteCoord = {whitePawns.get(0).get(r), whitePawns.get(1).get(r)};
+                                r = (int) (Math.random() * blackPawns.size());
+                                int[] blackCoord = {blackPawns.get(0).get(r), blackPawns.get(1).get(r)};
+
+                                double prob = Math.random();
+                                if (prob < .45)
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Knight(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Knight(blackCoord[0], blackCoord[1], false));
+                                }
+                                else if (prob < .65)
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Rook(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Rook(blackCoord[0], blackCoord[1], false));
+                                }
+                                else if (prob < .90)
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Bishop(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Bishop(blackCoord[0], blackCoord[1], false));
+                                }
+                                else
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Queen(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Queen(blackCoord[0], blackCoord[1], false));
+                                }
+                                break;
+                            }
+                            case REMOVE -> {
+                                System.out.println("Removed a Piece!");
+                                JOptionPane.showMessageDialog(null, "Removed a Piece!");
+
+                                ArrayList<ArrayList<Integer>> whitePieces = chess.getChessmen(Board.Occupation.WHITE);
+                                ArrayList<ArrayList<Integer>> blackPieces = chess.getChessmen(Board.Occupation.BLACK);
+
+                                int r = (int) (Math.random() * whitePieces.size());
+                                chess.setPiece(whitePieces.get(0).get(r), whitePieces.get(1).get(r), null);
+                                r = (int) (Math.random() * blackPieces.size());
+                                chess.setPiece(blackPieces.get(0).get(r), blackPieces.get(1).get(r), null);
+                                break;
+                            }
+                            case ADD -> {
+                                System.out.println("Piece added!");
+                                JOptionPane.showMessageDialog(null, "Piece added!");
+
+                                ArrayList<ArrayList<Integer>> blankTiles = chess.getBlankTiles();
+                                ArrayList<Integer> whiteTileIndexes = new ArrayList<>();
+                                ArrayList<Integer> blackTileIndexes = new ArrayList<>();
+
+                                for (int i = 0; i < blankTiles.get(0).size(); i++)
+                                {
+                                    if (blankTiles.get(1).get(i) > 4)
+                                        whiteTileIndexes.add(i);
+                                    else
+                                        blackTileIndexes.add(i);
+                                }
+
+                                int r = (int) (Math.random() * whiteTileIndexes.size());
+                                int[] whiteCoord = {blankTiles.get(0).get(r), blankTiles.get(1).get(r)};
+                                r = (int) (Math.random() * blackTileIndexes.size());
+                                int[] blackCoord = {blankTiles.get(0).get(r), blankTiles.get(1).get(r)};
+
+                                double prob = Math.random();
+                                if (prob < .45)
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Knight(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Knight(blackCoord[0], blackCoord[1], false));
+                                }
+                                else if (prob < .65)
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Rook(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Rook(blackCoord[0], blackCoord[1], false));
+                                }
+                                else if (prob < .90)
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Bishop(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Bishop(blackCoord[0], blackCoord[1], false));
+                                }
+                                else
+                                {
+                                    chess.setPiece(whiteCoord[0], whiteCoord[1], new Queen(whiteCoord[0], whiteCoord[1], true));
+                                    chess.setPiece(blackCoord[0], blackCoord[1], new Queen(blackCoord[0], blackCoord[1], false));
+                                }
+                                break;
+                            }
+                            case TORPEDO -> {
+                                System.out.println("All pawns have torpedo mutation!");
+                                JOptionPane.showMessageDialog(null, "All pawns have torpedo mutation!");
+                                torpedo = true;
+                                break;
+                            }
+                            case ATOMIC -> {
+                                System.out.println("All pieces have bombs!");
+                                JOptionPane.showMessageDialog(null, "All pieces have bombs!");
+                                atomic = true;
+                                break;
+                            }
+                            case TRAP -> {
+                                JOptionPane.showMessageDialog(null, "Trapped tile added!");
+                                ArrayList<ArrayList<Integer>> blankTiles = chess.getBlankTiles();
+                                int r = (int) (Math.random() * blankTiles.size());
+                                int x = blankTiles.get(0).get(r);
+                                int y = blankTiles.get(1).get(r);
+                                System.out.println("Trapped Tile added at " + x + ", " + y);
+                                chess.setPiece(x, y, new Trap(x,y));
+                                if (Math.random() < EMPTY_REMOVE_PROBABILITY)
+                                {
+                                    emptyCoords[0] = x;
+                                    emptyCoords[1] = y;
+                                }
+                                break;
+                            }
+                        }
+                        reloadBoard(buttons, chess);
+                    }
+
                     if (isTimed)
                         swapTimers();
-                    if (multiplayer)
-                    {
+                    if (multiplayer) {
                         try
                         {
                             if (isHost)
@@ -703,7 +947,7 @@ public class Main {
                     }
                     if (isMinimax)
                     {
-                    	int[] m = Computer.getMinimaxMove(chess, isWhite, 3);
+                    	int[] m = Computer.getMinimaxMove(chess, Board.boolToOccupation(isWhite), 3);
                     	chess.movePiece(m[0], m[1], m[2], m[3], false);
                     	reloadBoard(buttons, chess);
                     }
@@ -753,10 +997,11 @@ public class Main {
 
     public static void reloadBoard(JButton[][] buttons, Board b)
     {
-        jFrame.setBackground(background[theme]);
+        b = chess;
 
-        System.out.println(b);
-        for (int i = 0; i < 8; i++) 
+        jFrame.setBackground(background[theme]);
+        
+        for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++)
             {
                 if ((j % 2 == 0 && i % 2 == 0) || (j % 2 == 1 && i % 2 == 1))
@@ -764,28 +1009,31 @@ public class Main {
                 else
                     buttons[i][j].setBackground(tileB[theme]);
 
-                if (chess.occupation(i,j) == 3)
+                if (b.occupation(i,j) == Board.Occupation.EMPTY)
                     buttons[i][j].setBackground(emptyColors[theme]);
 
                 buttons[i][j].removeActionListener(buttons[i][j].getActionListeners()[0]);
-                buttons[i][j].addActionListener(new ButtonClickListener(i, j, chess));
+                buttons[i][j].addActionListener(new ButtonClickListener(i, j, b));
             }
+        }
 
-        if (!blindfold)
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
+                if (b.getPiece(i,j) != null && !blindfold && !fogOfWar)
+                    buttons[i][j].setIcon(b.getPiece(i,j).getIcon());
+                else
+                    buttons[i][j].setIcon(null);
+
+        if (fogOfWar)
             for (int i = 0; i < 8; i++)
                 for (int j = 0; j < 8; j++)
-                {
-                    if (b.getPiece(i,j) != null)
+                    if (b.occupation(i, j) == Board.boolToOccupation(isWhite)) {
                         buttons[i][j].setIcon(b.getPiece(i,j).getIcon());
-                    else
-                        buttons[i][j].setIcon(null);
-                }
-        else
-            for (int i = 0; i < 8; i++)
-                for (int j = 0; j < 8; j++)
-                    if (chess.occupation(i, j) != 3)
-                        buttons[i][j].setIcon(null);
-
+                        ArrayList<ArrayList<Integer>> l = b.getPiece(i,j).getPossibleMoves(chess);
+                        for (int k = 0; k < l.get(0).size(); k++)
+                            if (b.occupation(l.get(0).get(k), l.get(1).get(k)) != Board.Occupation.NULL)
+                                buttons[ l.get(0).get(k) ][ l.get(1).get(k) ].setIcon( b.getPiece( l.get(0).get(k), l.get(1).get(k) ).getIcon() );
+                    }
     }
 
     public static void swapTimers()
